@@ -1,0 +1,61 @@
+DARTMOUTH
+
+student orgs: http://www.dartmouth.edu/~coso/organizations/
+
+√ http://dartmouth.edu/events
+√ https://news.dartmouth.edu/events#.V-VMjZMrLMU
+√ http://www.discoverdartmouth.com/festivals-and-events/searchresults?sr=1&rd=on&anydate=yes
+
+YALE
+
+student orgs: http://studentorgs.yalecollege.yale.edu/directory?title=&field_type_of_organization_value=All
+
+x(Can’t go through a page to other page) http://calendar.yale.edu/cal/opa
+√ http://www.visitnewhaven.com/index.php/things-to-do/events-calendar
+√ http://artgallery.yale.edu/calendar-upcoming-events
+x(Have to use JS) https://music-tickets.yale.edu/
+x(No end date) http://artscalendar.yale.edu/
+x(No support sport website cuz the time format) http://www.yalebulldogs.com/composite
+
+
+PRINCETON
+
+student orgs: https://odusapps.princeton.edu/StudentOrg/new/directory.php
+
+√ http://www.princeton.edu/events/
+x(Have to log in) http://cal.tigerapps.org/evlist/gen/
+x(Have to use JS) https://www.visitprinceton.org/events/
+√ http://www.princetonentertain.com/polCalendar.cfm?Calendar_Code=Entert
+x(Have to use JS) http://www.goprincetontigers.com/calendar.aspx
+
+
+BROWN
+
+student orgs: http://studentactivitiesoffice89668.orgsync.com/BearSyncPublicSearch
+
+√ http://events.brown.edu/cal/main/showMain.rdo
+x(No support sport website cuz the time format) http://www.brownbears.com/composite
+x(Other url) https://news.brown.edu/events
+x(Have to use JS) http://www.goprovidence.com/events/
+√ or x (Other page need to be crawled) http://downtownprovidence.com/neighborhood-guide/event-calendar/
+√ http://providenceonline.com/calendar/
+x(Have to use JS) http://www.providencejournal.com/entertainment/things-to-do?start=2
+
+COLGATE
+
+student orgs: https://www.getinvolved.colgate.edu/organizations
+
+√ or x(Localist API) http://calendar.colgate.edu/
+x(Have to use JS) https://www.getinvolved.colgate.edu/events
+x(Have to use JS) http://www.gocolgateraiders.com/calendar.aspx
+
+AMERICAN
+
+x(No support sport website cuz the time format) http://www.aueagles.com/composite
+√ https://www.american.edu/cas/auarts/index.cfm
+x(No end date) https://www.american.edu/calendar/index.cfm
+
+DC
+
+√ http://www.ustreetmusichall.com/calendar/
+√ http://www.blackcatdc.com/schedule.html
