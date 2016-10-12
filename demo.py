@@ -1,6 +1,59 @@
 ####################################################################
 ####################################################################
 ####################################################################
+#visitnewhaven.com CONFIG
+#input xpath
+evtname = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[1]/div[1]/h2'
+evtdesc = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[4]/div/div[1]/p'
+starttime = '' #only contain starttime
+endtime = '' #only contain endtime
+date = '' #only contain date without time
+time = '' #contain the starttime and entime without date
+tags = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[3]/div[1]/ul/li/span/a/text()'
+dateAndTime = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[3]/div[2]/div[1]/text()' #contain the starttime and endtime with date
+location = ''
+#all the picurl should be included in the src tag
+picurl = ""
+#input the list of community
+community = ["yale", "agnes"]
+
+#input url #format: "http(s)://xx.xxx.edu(com/net)/xxx/xxx/xxx" The domain name should be the same
+mainUrlList = [
+				"http://www.visitnewhaven.com/index.php/things-to-do/events-calendar",
+				]
+#http://events.brown.edu/events/cal/CAL-00147cc4-567dc7a6-0156-7f7dfdcb-00007278events@brown.edu/20160922T160000Z
+#input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
+
+urlREList = [
+				'/things-to-do/events-calendar/[\w|-]*/[\w|-]*',
+			]
+
+#remove url partial pattern
+subUrlList = []
+
+#element modify list
+evtnameModifiedList = []
+evtdescModifiedList = []
+locationModifiedList = []
+
+#input a list of half regualr experssion
+urlPrefixList = []
+
+#input addtional tags for the crawlers
+additionalTags = []
+
+#input domain, can ignore
+domain = ""
+
+#input evtsource, can ignore
+source = ""
+
+#Preset parameter
+filterElementList = [".jpg", ".css", ".png", ".js", ".ico", ".pdf", ".docx", ".jpeg"]
+
+####################################################################
+####################################################################
+####################################################################
 #princetonentertain.com CONFIG
 #input xpath
 evtname = '//h3'
@@ -9,6 +62,7 @@ starttime = '' #only contain starttime
 endtime = '' #only contain endtime
 date = '' #only contain date without time
 time = '' #contain the starttime and entime without date
+tags = ''
 dateAndTime = '//*[@id="contentWrapper"]/div[2]/div/div/div[1]/div/div/table/tr[2]/td[2]/p[1]' #contain the starttime and endtime with date
 #location = '//table[@cellpadding="5"]/tr[2]/td[2]/p[2]'
 location = '//*[@id="contentWrapper"]/div[2]/div/div/div[1]/div/div/table/tr[2]/td[2]/p[2]/text()[position()<3]'
@@ -39,7 +93,7 @@ locationModifiedList = ['^\W*', '[\w\W] \d{3}[-|\s]*\d{3}[-|\s]\d{4}[\w\W]*?$']
 urlPrefixList = []
 
 #input addtional tags for the crawlers
-tags = []
+additionalTags = []
 
 #input domain, can ignore
 domain = ""
@@ -61,6 +115,7 @@ starttime = '' #only contain starttime
 endtime = '' #only contain endtime
 date = '' #only contain date without time
 time = '' #contain the starttime and entime without date
+tags = ''
 dateAndTime = '//*[@id="event-view-details"]/dd[2]' #contain the starttime and endtime with date
 location = '//*[@id="event-view-details"]/dd[3]/a'
 
@@ -93,7 +148,7 @@ locationModifiedList = []
 urlPrefixList = []
 
 #input addtional tags for the crawlers
-tags = []
+additionalTags = []
 
 #input domain, can ignore
 domain = ""
@@ -116,6 +171,7 @@ starttime = '' #only contain starttime
 endtime = '//*[@id="calendar-entry"]/h4[2]/abbr[2]' #only contain endtime
 date = '' #only contain date without time
 time = '' #contain the starttime and entime without date
+tags = ''
 dateAndTime = '//*[@id="calendar-entry"]/h4[2]/abbr[1]' #contain the starttime and endtime with date
 location = '//*[@id="calendar-entry"]/div[1]/ul/li'
 
@@ -148,7 +204,7 @@ locationModifiedList = []
 urlPrefixList = []
 
 #input addtional tags for the crawlers
-tags = []
+additionalTags = []
 
 #input domain, can ignore
 domain = ""
@@ -170,6 +226,7 @@ evtdesc = "//div[@property='content:encoded']/p"
 starttime = "" #only contain starttime
 endtime = ""#only contain endtime
 date = ""#only contain date without time
+tags = ""
 time = "//div[@class='group-right']/div[@class='field field-name-field-event-time field-type-datetime field-label-hidden']//span[@property='dc:date']"#contain the starttime and entime without date
 dateAndTime = ""#contain the starttime and endtime with date
 location = "//div[@class='field field-name-field-speaker-performer field-type-text-long field-label-hidden']/div[@class='field-items']/div[@class='field-item even']"
@@ -202,7 +259,7 @@ locationModifiedList = []
 urlPrefixList = []
 
 #input addtional tags for the crawlers
-tags = []
+additionalTags = []
 
 #input domain, can ignore
 domain = ""
@@ -223,6 +280,7 @@ evtdesc = "//div[@class='article']/div/div/div"
 starttime = "" #only contain starttime
 endtime = ""#only contain endtime
 date = "//div[@class='article clearfix']/p[1]"#only contain date without time
+tags = ""
 time = "//div[@class='article clearfix']/p[2]"#contain the starttime and entime without date
 dateAndTime = ""#contain the starttime and endtime with date
 location = "//div[@class='article clearfix']/p[3]"
@@ -256,7 +314,7 @@ locationModifiedList = []
 urlPrefixList = []
 
 #input addtional tags for the crawlers
-tags = []
+additionalTags = []
 
 #input domain, can ignore
 domain = ""
@@ -277,6 +335,7 @@ starttime = ""
 endtime = ""
 date = "//section[@class='timelocation']/div[@class='date']"
 time = "//section[@class='timelocation']/div[@class='time']"
+tags = ""
 datetime = ""
 location = "//section[@class='timelocation']/div[@class='location']"
 
@@ -308,7 +367,7 @@ locationModifiedList = []
 urlPrefixList = []
 
 #input addtional tags for the crawlers
-tags = []
+additionalTags = []
 
 #input domain, can ignore
 domain = ""

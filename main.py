@@ -12,6 +12,7 @@ import sys
 import time
 import HTMLParser
 import unidecode
+from titlecase import titlecase
 
 from bs4 import BeautifulSoup
 
@@ -23,8 +24,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_test_princetonentertain
-urlFilter = itemFilter.urlFilter_test_princetonentertain
+events = Agnes.events_test_newhaven
+urlFilter = itemFilter.urlFilter_test_newhaven
 ######################
 
 visitList = []
@@ -42,6 +43,7 @@ timePattern = ""
 datePattern = ""
 dateAndTimePattern = ""
 locationPattern = ""
+tagsPattern = []
 community = ""
 mainUrlList = ""
 urlREList = []
@@ -54,7 +56,8 @@ evtdescModifiedList = []
 locationModifiedList = []
 urlPrefixList = []
 filterElementList = []
-tags = []
+tagPattern = []
+additionalTags = []
 
 def main():
 	load_element()
@@ -83,11 +86,12 @@ def load_element():
 	global filterElementList
 	global datePattern
 	global picurlPattern
-	global tags
+	global additionalTags
 	global subUrlList
 	global evtnameModifiedList
 	global evtdescModifiedList
 	global locationModifiedList
+	global tagsPattern
 
 	evtnamePattern = Config.evtname
 	evtdescPattern = Config.evtdesc
@@ -106,7 +110,8 @@ def load_element():
 	filterElementList = Config.filterElementList
 	datePattern = Config.date
 	picurlPattern = Config.picurl
-	tags = Config.tags
+	additionalTags = Config.additionalTags
+	tagsPattern = Config.tags
 	evtnameModifiedList = Config.evtnameModifiedList
 	evtdescModifiedList = Config.evtdescModifiedList
 	locationModifiedList = Config.locationModifiedList
@@ -244,7 +249,8 @@ def fetch_information(HTML, requrl):
 	global evtsource
 	global datePattern
 	global picurlPattern
-	global tags
+	global tagsPattern
+	global additionalTags
 
 	currentTime =  datetime.datetime.now()
 	currentDate = currentTime.strftime('%Y-%m-%d')
@@ -263,6 +269,7 @@ def fetch_information(HTML, requrl):
 	location = ""
 	date = ""
 	picurl = ""
+	tags = []
 
 	#raw_input(requrl)
 	#print HTML
@@ -274,24 +281,27 @@ def fetch_information(HTML, requrl):
 	evtdesc = tree.xpath(evtdescPattern)
 	evtdesc = get_text(evtdesc)
 
-	location = tree.xpath(locationPattern)
-	location = get_text(location)
-
 	if evtname == "":
 		print "evtname unqualified"
-		return 0
-	elif location == "":
-		print "location unqualified"
 		return 0
 	elif evtdesc == "":
 		print "evtdesc unqualified"
 		return 0
-	
+
+	if locationPattern != "":
+		location = tree.xpath(locationPattern)
+		location = get_text(location)
+
 	if picurlPattern != "":
 		picurl = tree.xpath(picurlPattern)
 		picurl = get_picurl(picurl)
 	else:
 		picurl = ""
+
+	if tagsPattern != "":
+		tags = tree.xpath(tagsPattern)
+		tags = get_text(tags)
+		tags = analyze_tags(tags)
 	'''
 	if datePattern != "":
 		date = tree.xpath(datePattern)
@@ -342,8 +352,7 @@ def fetch_information(HTML, requrl):
 	if starttime == "":
 		print "Can't crawl time information"
 		return 0
-
-	fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, picurl)
+	fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl)
 
 def get_picurl(lxmlItems):
 	picurl = ""
@@ -360,6 +369,19 @@ def get_text(lxmlItems):
 			for item in lxmlItem.itertext():
 				text = text + " " + item
 	return text
+
+def analyze_tags(tags):
+	tagsSplitCharList = [",", "|", ";", "\\", "/", "."]
+	tagsSplitChar = ""
+	for tagsSplitCharItem in tagsSplitCharList:
+		if tagsSplitCharItem in tags:
+			tagsSplitChar = tagsSplitCharItem
+			break
+	if tagsSplitChar != "":
+		tagsList = tags.split(tagsSplitChar)
+	else:
+		tagsList = [tags]		
+	return tagsList
 
 def analyze_text(text):
 	text = re.sub(r'<br>', ' ', text)
@@ -457,12 +479,13 @@ def modify_location(location):
 	return location
 
 
-def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, picurl):
+def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl):
 	if not check_url(url):
 		evtname = modify_evtname(evtname)
 		evtdesc = modify_evtdesc(evtdesc)
 		location = modify_location(location)
-		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, picurl)
+		evtname = titlecase(evtname)
+		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl)
 	else:
 		print "Exist!"
 
@@ -477,7 +500,7 @@ def insert_url(url):
 	ele = {"url":url}
 	urlFilter.insert(ele)
 
-def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, picurl):
+def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl):
 	global crawledItem
 
 	item = {}
@@ -510,6 +533,7 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 		item["other"] = {"tags":[]}
 	else:
 		item["other"] = {"tags":tags}
+	item["other"]["tags"].extend(additionalTags)
 	item["evtsource"] = evtsource
 	item["just_crawled"] = True
 	item["isAvailable"] = True
@@ -538,9 +562,6 @@ def insert_item(item):
 		print "Drop Item: endtime is not qualified"
 		feed_url(item["url"])
 		return 0
-	elif item["location"] == "":
-		print "Drop Item: location is not qualified"
-		return 0
 	else:
 		print "Insert!"
 		print item["evtname"]
@@ -549,6 +570,6 @@ def insert_item(item):
 
 if __name__ == '__main__':
 	main()
- 
+
 
 	

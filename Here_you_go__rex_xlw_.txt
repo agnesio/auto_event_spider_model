@@ -4,7 +4,7 @@ student orgs: http://www.dartmouth.edu/~coso/organizations/
 
 √ http://dartmouth.edu/events
 √ https://news.dartmouth.edu/events#.V-VMjZMrLMU
-√ http://www.discoverdartmouth.com/festivals-and-events/searchresults?sr=1&rd=on&anydate=yes
+x http://www.discoverdartmouth.com/festivals-and-events/searchresults?sr=1&rd=on&anydate=yes
 
 YALE
 
@@ -38,7 +38,7 @@ x(No support sport website cuz the time format) http://www.brownbears.com/compos
 x(Other url) https://news.brown.edu/events
 x(Have to use JS) http://www.goprovidence.com/events/
 √ or x (Other page need to be crawled) http://downtownprovidence.com/neighborhood-guide/event-calendar/
-√ http://providenceonline.com/calendar/
+√ or x (No time) http://providenceonline.com/calendar/
 x(Have to use JS) http://www.providencejournal.com/entertainment/things-to-do?start=2
 
 COLGATE
