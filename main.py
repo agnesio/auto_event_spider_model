@@ -24,8 +24,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_test_newhaven
-urlFilter = itemFilter.urlFilter_test_newhaven
+events = Agnes.events_test_ustreet
+urlFilter = itemFilter.urlFilter_test_ustreet
 ######################
 
 visitList = []
@@ -199,6 +199,9 @@ def fetch_url(HTML):
 		tempUrlList = urlREPattern.findall(HTML)
 		urlList.extend(tempUrlList)
 
+	#print urlList
+	#raw_input("urlList")
+
 	if urlPrefixList != []:
 		isUrlPrefix = True
 
@@ -358,6 +361,8 @@ def get_picurl(lxmlItems):
 	picurl = ""
 	for lxmlItem in lxmlItems:
 		picurl += lxmlItem.get("src")
+	picurl = re.sub(r"^\W*?(?=\w)", "", picurl)
+
 	return picurl
 
 def get_text(lxmlItems):
@@ -496,10 +501,6 @@ def check_url(url):
 		isExist = True
 	return isExist
 
-def insert_url(url):
-	ele = {"url":url}
-	urlFilter.insert(ele)
-
 def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl):
 	global crawledItem
 
@@ -548,6 +549,10 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 def feed_url(url):
 	insert_url(url)
 	pass
+
+def insert_url(url):
+	ele = {"url":url}
+	urlFilter.insert(ele)
 
 def insert_item(item):
 	global stopSign

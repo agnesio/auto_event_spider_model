@@ -1,27 +1,26 @@
 #input xpath
-evtname = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[1]/div[1]/h2'
-evtdesc = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[4]/div/div[1]/p'
+evtname = '//h1[@class="headliners summary"]'
+evtdesc = '//h2[@class="age-restriction over-18"] | //h2[@class="age-restriction all-ages"]'
 starttime = '' #only contain starttime
 endtime = '' #only contain endtime
-date = '' #only contain date without time
-time = '' #contain the starttime and entime without date
-tags = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[3]/div[1]/ul/li/span/a/text()'
-dateAndTime = '//*[@id="jcl_component"]/div[2]/div[1]/div/div[3]/div[2]/div[1]/text()' #contain the starttime and endtime with date
-location = ''
+date = '//h2[@class="dates"]' #only contain date without time
+time = '//h2[@class="times"]/span' #contain the starttime and entime without date
+tags = ''
+dateAndTime = '' #contain the starttime and endtime with date
+location = '//h2[@class="venue location"]'
 #all the picurl should be included in the src tag
-picurl = ""
+picurl = '//*[@id="page-content"]/div[2]/img'
 #input the list of community
-community = ["yale", "agnes"]
+community = ["gwu", "american", "georgetown", "agnes"]
 
 #input url #format: "http(s)://xx.xxx.edu(com/net)/xxx/xxx/xxx" The domain name should be the same
 mainUrlList = [
-				"http://www.visitnewhaven.com/index.php/things-to-do/events-calendar",
+				"http://www.blackcatdc.com/schedule.html",
 				]
 				
 #input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
-
 urlREList = [
-				'/things-to-do/events-calendar/[\w|-]*/[\w|-]*',
+				'/event/\d*-[\w|-]*/',
 			]
 
 #remove url partial pattern
