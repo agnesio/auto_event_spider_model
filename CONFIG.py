@@ -20,7 +20,7 @@ mainUrlList = [
 				
 #input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
 urlREList = [
-				'/event/\d*-[\w|-]*/',
+				'http://www.blackcatdc.com/shows/[\w|-]*\.html',
 			]
 
 #remove url partial pattern
