@@ -24,8 +24,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_test_ustreet
-urlFilter = itemFilter.urlFilter_test_ustreet
+events = Agnes.events_test_nbm
+urlFilter = itemFilter.urlFilter_test_nbm
 ######################
 
 visitList = []
@@ -185,6 +185,7 @@ def fetch_url(HTML):
 
 	#raw_input(domain)
 	#print HTML
+	#raw_input(123)
 
 	for urlRE in urlREList:
 		urlStr = urlRE
@@ -395,11 +396,26 @@ def analyze_text(text):
 	text = text.strip()
 	return text
 
+#precoss some time format
+def format_time(timeString):
+	if "time:" or "time" in timeString:
+		timeString = re.sub(r'time:?', '', timeString)
+	if "date:" or "date" in timeString:
+		timeString = re.sub(r'date:?', '', timeString)
+	timeString = timeString.strip()
+	return timeString
+
 def analyze_time(dateAndTime, date, time, starttime, endtime):
 	returnedStarttime = ""
 	returnedEndtime = ""
 	splitCharList = ["-"]
 	splitCharacter = ""
+
+	dateAndTime = format_time(dateAndTime)
+	date = format_time(date)
+	time = format_time(time)
+	starttime = format_time(starttime)
+	endtime = format_time(endtime)
 
 	try:
 		if dateAndTime != "":
@@ -558,7 +574,6 @@ def insert_item(item):
 	global stopSign
 	currentTime = datetime.datetime.now()
 	endTime = currentTime + datetime.timedelta(weeks=8)
-
 	if item["starttime"] > endTime:
 		stopSign = True
 		print "Drop Item: starttime is not qualified"
