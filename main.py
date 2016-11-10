@@ -251,7 +251,7 @@ def fetch_url(HTML):
 			visitList.append(url)
 		else:
 			print "Visited this page before, won't record this url: ",
-			print url
+			print urlgit
 
 	#print visitList
 	#raw_input('123')
