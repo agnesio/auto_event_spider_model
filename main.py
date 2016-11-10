@@ -61,7 +61,9 @@ urlPrefixList = []
 filterElementList = []
 tagPattern = []
 additionalTags = []
-unqualifiedCount = 0
+unqualifiedStarttimeCount = 0
+unqualifiedEndtimeCount = 0
+unqualifiedFlag = 3
 
 def main():
 	load_element()
@@ -247,6 +249,9 @@ def fetch_url(HTML):
 	for url in pendingUrlList:
 		if not check_url(url):
 			visitList.append(url)
+		else:
+			print "Visited this page before, won't record this url: ",
+			print url
 
 	#print visitList
 	#raw_input('123')
@@ -603,17 +608,41 @@ def insert_url(url):
 
 def insert_item(item):
 	global stopSign
+	global unqualifiedStarttimeCount
+	global unqualifiedEndtimeCount
+	global unqualifiedFlag
+
 	currentTime = datetime.datetime.now()
 	endTime = currentTime + datetime.timedelta(weeks=8)
 	if item["starttime"] > endTime:
-		stopSign = True
+		#if there are 5 continuous events that starttime is later than our period, we will stop running our spider
+		if unqualifiedFlag != 1:
+			unqualifiedStarttimeCount = 0
+			unqualifiedFlag = 1
+		else:
+			unqualifiedStarttimeCount += 1
+		if unqualifiedStarttimeCount == 5:
+			print "Five continuous events that starttime is later than our period endtime, stop running spider"
+			stopSign = True
+
 		print "Drop Item: starttime is not qualified"
 		return 0
 	elif item["endtime"] < currentTime:
+		#if there are 10 continuous events that endtime is earlier than current time, we will stop running our spider
+		if unqualifiedFlag != 2:
+			unqualifiedEndtimeCount = 0
+			unqualifiedFlag = 2
+		else:
+			unqualifiedEndtimeCount += 1
+		if unqualifiedEndtimeCount == 10:
+			print "Ten continuous events that endtime is earlier than our period endtime, stop running spider"
+			stopSign = True
+
 		print "Drop Item: endtime is not qualified"
 		feed_url(item["url"])
 		return 0
 	else:
+		unqualifiedFlag = 3
 		print "Insert!"
 		print item["evtname"]
 		events.insert(item)
