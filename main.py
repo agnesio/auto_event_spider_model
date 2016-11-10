@@ -2,6 +2,9 @@
 import CONFIG as Config
 import urllib2
 import re
+import gzip
+import zlib
+import StringIO
 
 from lxml import etree
 import lxml
@@ -135,7 +138,13 @@ def visit_page():
 		#raw_input("requrl")
 		req = urllib2.Request(requrl)
 		res_data = urllib2.urlopen(req, timeout = 10)
-		res = res_data.read()
+		encoding = res_data.info().get('Content-Encoding')
+		
+		if encoding in ('gzip','x-zip','deflate'):
+			res = decode(res_data, encoding)
+		else:
+			res = res_data.read()
+
 		analyze_page(res, requrl)
 		"""
 		if "/frontpage?field_event_sub_type_tid[7]=7&field_event_sub_type_tid[8]=8&field_event_sub_type_tid[9]=9&field_event_sub_type_tid[11]=11&field_event_sub_type_tid[12]=12&field_event_sub_type_tid[13]=13&field_event_sub_type_tid[14]=14&field_event_sub_type_tid[15]=15&page=1" in requrl:
@@ -162,6 +171,15 @@ def visit_page():
 	#print visitList
 	#print visitedList
 
+def decode(res_data, encoding):
+	res = res_data.read()
+	if encoding == "deflate":
+		data = StringIO.StringIO(zlib.decompress(res))
+	else:
+		data = gzip.GzipFile('', 'rb', 9, StringIO.StringIO(res))
+	res = data.read()
+	return res
+
 def analyze_page(HTML, requrl):
 	global stopSign
 	soup = BeautifulSoup(HTML)
@@ -184,8 +202,8 @@ def fetch_url(HTML):
 	isUrlPrefix = False
 
 	#raw_input(domain)
-	print HTML
-	raw_input(123)
+	#print HTML
+	#raw_input(123)
 
 	for urlRE in urlREList:
 		urlStr = urlRE
@@ -286,10 +304,12 @@ def fetch_information(HTML, requrl):
 	evtdesc = get_text(evtdesc)
 
 	if evtname == "":
-		print "evtname unqualified"
+		print "evtname unqualified: ",
+		print requrl
 		return 0
 	elif evtdesc == "":
-		print "evtdesc unqualified"
+		print "evtdesc unqualified: ",
+		print requrl
 		return 0
 
 	if locationPattern != "":
@@ -354,7 +374,8 @@ def fetch_information(HTML, requrl):
 	starttime, endtime = analyze_time(dateAndTime, date, time, starttime, endtime)
 
 	if starttime == "":
-		print "Can't crawl time information"
+		print "Can't crawl time information: ",
+		print requrl
 		return 0
 	fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl)
 
@@ -508,7 +529,8 @@ def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, e
 		evtname = titlecase(evtname)
 		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl)
 	else:
-		print "Exist!"
+		print "Exist: ",
+		print url
 
 def check_url(url):
 	isExist = False
@@ -585,8 +607,8 @@ def insert_item(item):
 	else:
 		print "Insert!"
 		print item["evtname"]
-		#events.insert(item)
-		#feed_url(item["url"])
+		events.insert(item)
+		feed_url(item["url"])
 
 if __name__ == '__main__':
 	main()
