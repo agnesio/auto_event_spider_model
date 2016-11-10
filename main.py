@@ -24,8 +24,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_test_nbm
-urlFilter = itemFilter.urlFilter_test_nbm
+events = Agnes.events_test_csis
+urlFilter = itemFilter.urlFilter_test_csis
 ######################
 
 visitList = []
@@ -118,10 +118,10 @@ def load_element():
 
 	if evtsource == "":
 		evtsource = re.sub(r'https?:(//)?(www\.)?', '', mainUrlList[0])
-		evtsource = re.sub(r'(?<=com|net|edu)/[\w\W]*', '', evtsource)
+		evtsource = re.sub(r'(?<=com|net|edu|org)/[\w\W]*', '', evtsource)
 
 	if domain == "":
-		domain = re.sub(r'(?<=com|net|edu)/[\w\W]*', '', mainUrlList[0])
+		domain = re.sub(r'(?<=com|net|edu|org)/[\w\W]*', '', mainUrlList[0])
 
 
 def visit_page():
@@ -184,8 +184,8 @@ def fetch_url(HTML):
 	isUrlPrefix = False
 
 	#raw_input(domain)
-	#print HTML
-	#raw_input(123)
+	print HTML
+	raw_input(123)
 
 	for urlRE in urlREList:
 		urlStr = urlRE
@@ -585,8 +585,8 @@ def insert_item(item):
 	else:
 		print "Insert!"
 		print item["evtname"]
-		events.insert(item)
-		feed_url(item["url"])
+		#events.insert(item)
+		#feed_url(item["url"])
 
 if __name__ == '__main__':
 	main()
