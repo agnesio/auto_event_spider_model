@@ -61,6 +61,7 @@ urlPrefixList = []
 filterElementList = []
 tagPattern = []
 additionalTags = []
+unqualifiedCount = 0
 
 def main():
 	load_element()
@@ -198,6 +199,8 @@ def fetch_url(HTML):
 	global visitedList
 	global urlPrefixList
 
+	pendingUrlList = []
+
 	urlList = []
 	isUrlPrefix = False
 
@@ -232,12 +235,18 @@ def fetch_url(HTML):
 				if not isUrlPrefix:
 					if domain in url:
 						url = modifyUrl(url)
-						visitList.append(url)
+						#visitList.append(url)
+						pendingUrlList.append(url)
 				else:
 					for urlPrefix in urlPrefixList:
 						if urlPrefix in url:
 							url = modifyUrl(url)
-							visitList.append(url)
+							#visitList.append(url)
+							pendingUrlList.append(url)
+
+	for url in pendingUrlList:
+		if not check_url(url):
+			visitList.append(url)
 
 	#print visitList
 	#raw_input('123')
