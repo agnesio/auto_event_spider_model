@@ -27,8 +27,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_test_csis
-urlFilter = itemFilter.urlFilter_test_csis
+events = Agnes.events_test_aei
+urlFilter = itemFilter.urlFilter_test_aei
 ######################
 
 visitList = []
@@ -138,8 +138,17 @@ def visit_page():
 	while len(visitList) != 0:
 		requrl = visitList[0]
 
-		#raw_input("requrl")
-		req = urllib2.Request(requrl)
+		#custom header
+		customHeaders = {
+					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+					'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+					'Accept-Encoding': 'none',
+					'Accept-Language': 'en-US,en;q=0.8',
+					'Connection': 'keep-alive',
+					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
+					}
+
+		req = urllib2.Request(requrl, headers = customHeaders)
 		res_data = urllib2.urlopen(req, timeout = 10)
 		encoding = res_data.info().get('Content-Encoding')
 		
@@ -384,7 +393,6 @@ def fetch_information(HTML, requrl):
 	starttime = analyze_text(starttime)
 	endtime = analyze_text(endtime)
 
-
 	starttime, endtime = analyze_time(dateAndTime, date, time, starttime, endtime)
 
 	if starttime == "":
@@ -443,6 +451,7 @@ def format_time(timeString):
 def analyze_time(dateAndTime, date, time, starttime, endtime):
 	returnedStarttime = ""
 	returnedEndtime = ""
+	uselessCharList = ["|"]
 	splitCharList = ["-"]
 	splitCharacter = ""
 
@@ -454,6 +463,11 @@ def analyze_time(dateAndTime, date, time, starttime, endtime):
 
 	try:
 		if dateAndTime != "":
+			for uselessChar in uselessCharList:
+				#build regex format
+				uselessChar = "\\" + uselessChar
+				dateAndTime = re.sub(uselessChar, '', dateAndTime)
+
 			for splitChar in splitCharList:
 				if splitChar in dateAndTime:
 					splitCharacter = splitChar
@@ -591,15 +605,15 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	item["just_crawled"] = True
 	item["isAvailable"] = True
 
-	#print item
+	print item
 	#print item["location"]
-	#raw_input("item")
+	raw_input("item")
 	
 	crawledItem += 1
 	insert_item(item)
 
 def feed_url(url):
-	insert_url(url)
+	#insert_url(url)
 	pass
 
 def insert_url(url):
@@ -644,9 +658,11 @@ def insert_item(item):
 	else:
 		unqualifiedFlag = 3
 		print "Insert!"
-		print item["evtname"]
-		events.insert(item)
+		#print item["evtname"]
+		print item
+		#events.insert(item)
 		feed_url(item["url"])
+		raw_input(item["url"])
 
 if __name__ == '__main__':
 	main()

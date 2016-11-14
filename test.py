@@ -1,5 +1,5 @@
-import dateparser
-import dateutil.parser as dparser
-
-print dateparser.parse("10/12 Thursday, October 6, 2016, 3:00 pm")
-print dparser.parse("Thursday, October 6, 2016, 3:00 pm")
+import re
+test = "Monday, November 14, 2016 | 9:00 am - 12:30 pm"
+print "|" in test
+test = re.sub(" \| ","",test)
+print test
