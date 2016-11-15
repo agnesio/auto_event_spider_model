@@ -194,6 +194,8 @@ def decode(res_data, encoding):
 
 def analyze_page(HTML, requrl):
 	global stopSign
+	#remove script content
+	HTML = re.sub(r'<script[\w\W]*?</script>', '', HTML)
 	soup = BeautifulSoup(HTML)
 	HTML = str(soup.body)
 	#print HTML
@@ -413,10 +415,12 @@ def get_text(lxmlItems):
 	text = ""
 	for lxmlItem in lxmlItems:
 		if isinstance(lxmlItem, unicode) or isinstance(lxmlItem, str):
-			text = text + lxmlItem
+			text = text + "\n" + lxmlItem
 		else:
 			for item in lxmlItem.itertext():
-				text = text + " " + item
+				print item
+				raw_input("...")
+				text = text + "\r\n" + item
 	return text
 
 def analyze_tags(tags):
