@@ -32,6 +32,9 @@ evtnameModifiedList = []
 evtdescModifiedList = []
 locationModifiedList = []
 
+#input specific location, can ignore
+specificLocation = ""
+
 #input a list of half regualr experssion
 urlPrefixList = []
 

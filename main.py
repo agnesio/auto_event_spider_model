@@ -61,6 +61,7 @@ urlPrefixList = []
 filterElementList = []
 tagPattern = []
 additionalTags = []
+specificLocation = ""
 unqualifiedStarttimeCount = 0
 unqualifiedEndtimeCount = 0
 unqualifiedFlag = 3
@@ -98,6 +99,7 @@ def load_element():
 	global evtdescModifiedList
 	global locationModifiedList
 	global tagsPattern
+	global specificLocation
 
 	evtnamePattern = Config.evtname
 	evtdescPattern = Config.evtdesc
@@ -121,6 +123,7 @@ def load_element():
 	evtnameModifiedList = Config.evtnameModifiedList
 	evtdescModifiedList = Config.evtdescModifiedList
 	locationModifiedList = Config.locationModifiedList
+	specificLocation = Config.specificLocation
 
 	if evtsource == "":
 		evtsource = re.sub(r'https?:(//)?(www\.)?', '', mainUrlList[0])
@@ -299,6 +302,7 @@ def fetch_information(HTML, requrl):
 	global picurlPattern
 	global tagsPattern
 	global additionalTags
+	global specificLocation
 
 	currentTime =  datetime.datetime.now()
 	currentDate = currentTime.strftime('%Y-%m-%d')
@@ -331,6 +335,9 @@ def fetch_information(HTML, requrl):
 
 	location = tree.xpath(locationPattern)
 	location = get_text(location)
+
+	if specificLocation != "":
+		location = specificLocation
 
 	if evtname == "":
 		print "evtname unqualified: ",
