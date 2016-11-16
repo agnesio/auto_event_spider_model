@@ -632,27 +632,27 @@ def insert_item(item):
 	currentTime = datetime.datetime.now()
 	endTime = currentTime + datetime.timedelta(weeks=8)
 	if item["starttime"] > endTime:
-		#if there are 5 continuous events that starttime is later than our period, we will stop running our spider
+		#if there are 10 continuous events that starttime is later than our period, we will stop running our spider
 		if unqualifiedFlag != 1:
 			unqualifiedStarttimeCount = 0
 			unqualifiedFlag = 1
 		else:
 			unqualifiedStarttimeCount += 1
-		if unqualifiedStarttimeCount == 5:
-			print "Five continuous events that starttime is later than our period endtime, stop running spider"
+		if unqualifiedStarttimeCount == 10:
+			print "Ten continuous events that starttime is later than our period endtime, stop running spider"
 			stopSign = True
 
 		print "Drop Item: starttime is not qualified"
 		return 0
 	elif item["endtime"] < currentTime:
-		#if there are 10 continuous events that endtime is earlier than current time, we will stop running our spider
+		#if there are 40 continuous events that endtime is earlier than current time, we will stop running our spider
 		if unqualifiedFlag != 2:
 			unqualifiedEndtimeCount = 0
 			unqualifiedFlag = 2
 		else:
 			unqualifiedEndtimeCount += 1
-		if unqualifiedEndtimeCount == 10:
-			print "Ten continuous events that endtime is earlier than our period endtime, stop running spider"
+		if unqualifiedEndtimeCount == 40:
+			print "Forty continuous events that endtime is earlier than our period endtime, stop running spider"
 			stopSign = True
 
 		print "Drop Item: endtime is not qualified"
