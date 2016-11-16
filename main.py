@@ -329,18 +329,18 @@ def fetch_information(HTML, requrl):
 	evtdesc = tree.xpath(evtdescPattern)
 	evtdesc = get_text(evtdesc)
 
+	location = tree.xpath(locationPattern)
+	location = get_text(location)
+
 	if evtname == "":
 		print "evtname unqualified: ",
 		print requrl
 		return 0
-	elif evtdesc == "":
-		print "evtdesc unqualified: ",
+	elif location == "":
+		print "location unqualified: ",
 		print requrl
 		return 0
 
-	if locationPattern != "":
-		location = tree.xpath(locationPattern)
-		location = get_text(location)
 
 	if picurlPattern != "":
 		picurl = tree.xpath(picurlPattern)
