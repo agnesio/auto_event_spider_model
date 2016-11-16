@@ -27,8 +27,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_test_aei
-urlFilter = itemFilter.urlFilter_test_aei
+events = Agnes.events_auto
+urlFilter = itemFilter.urlFilter_auto
 ######################
 
 visitList = []
@@ -171,8 +171,8 @@ def visit_page():
 		#sys.stdout.write('visited quantity: '+ str(len(visitedList))+ "\r")
 		#sys.stdout.flush()
 		print requrl
-		#print len(visitedList)
-		#print len(visitList)
+		#print visitedList
+		#print visitList
 		#raw_input("123")
 
 
@@ -258,11 +258,12 @@ def fetch_url(HTML):
 							pendingUrlList.append(url)
 
 	for url in pendingUrlList:
-		if not check_url(url):
+		if not check_url(url) and url not in visitList and url not in visitedList:
 			visitList.append(url)
 		else:
-			print "Visited this page before, won't record this url: ",
-			print urlgit
+			#print "Visited this page before, won't record this url: ",
+			#print url
+			pass
 
 	#print visitList
 	#raw_input('123')
@@ -418,8 +419,6 @@ def get_text(lxmlItems):
 			text = text + "\n" + lxmlItem
 		else:
 			for item in lxmlItem.itertext():
-				print item
-				raw_input("...")
 				text = text + "\r\n" + item
 	return text
 
@@ -572,7 +571,6 @@ def check_url(url):
 	return isExist
 
 def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl):
-	global crawledItem
 
 	item = {}
 	item["url"] = HTMLParser.HTMLParser().unescape(url)
@@ -609,15 +607,15 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	item["just_crawled"] = True
 	item["isAvailable"] = True
 
-	print item
+	#print item
 	#print item["location"]
-	raw_input("item")
+	#raw_input("item")
 	
-	crawledItem += 1
+	
 	insert_item(item)
 
 def feed_url(url):
-	#insert_url(url)
+	insert_url(url)
 	pass
 
 def insert_url(url):
@@ -625,6 +623,7 @@ def insert_url(url):
 	urlFilter.insert(ele)
 
 def insert_item(item):
+	global crawledItem
 	global stopSign
 	global unqualifiedStarttimeCount
 	global unqualifiedEndtimeCount
@@ -662,11 +661,12 @@ def insert_item(item):
 	else:
 		unqualifiedFlag = 3
 		print "Insert!"
+		crawledItem += 1
 		#print item["evtname"]
-		print item
-		#events.insert(item)
+		#print item
+		events.insert(item)
 		feed_url(item["url"])
-		raw_input(item["url"])
+		#raw_input(item["url"])
 
 if __name__ == '__main__':
 	main()
