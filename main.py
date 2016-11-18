@@ -41,7 +41,9 @@ stopSign = False
 evtnamePattern = ""
 evtdescPattern = ""
 starttimePattern = ""
+startdatePattern = ""
 endtimePattern = ""
+enddatePattern = ""
 timePattern = ""
 datePattern = ""
 dateAndTimePattern = ""
@@ -80,7 +82,9 @@ def load_element():
 	global evtnamePattern
 	global evtdescPattern
 	global starttimePattern
+	global startdatePattern
 	global endtimePattern
+	global enddatePattern
 	global timePattern
 	global dateAndTimePattern
 	global locationPattern
@@ -104,7 +108,9 @@ def load_element():
 	evtnamePattern = Config.evtname
 	evtdescPattern = Config.evtdesc
 	starttimePattern = Config.starttime
+	startdatePattern = Config.startdate
 	endtimePattern = Config.endtime
+	enddatePattern = Config.enddate
 	timePattern = Config.time
 	dateAndTimePattern = Config.dateAndTime
 	locationPattern = Config.location
@@ -292,7 +298,9 @@ def fetch_information(HTML, requrl):
 	global evtnamePattern
 	global evtdescPattern
 	global starttimePattern
+	global startdatePattern
 	global endtimePattern
+	global enddatePattern
 	global timePattern
 	global locationPattern
 	global dateAndTimePattern
@@ -315,7 +323,9 @@ def fetch_information(HTML, requrl):
 	evtname = ""
 	evtdesc = ""
 	starttime = ""
+	startdate = ""
 	endtime = ""
+	enddate = ""
 	time = ""
 	dateAndTime = ""
 	location = ""
@@ -347,7 +357,6 @@ def fetch_information(HTML, requrl):
 		print "location unqualified: ",
 		print requrl
 		return 0
-
 
 	if picurlPattern != "":
 		picurl = tree.xpath(picurlPattern)
@@ -388,7 +397,12 @@ def fetch_information(HTML, requrl):
 	if endtimePattern != "":
 		endtime = tree.xpath(endtimePattern)
 		endtime = get_text(endtime)
-
+	if startdatePattern != "":
+		startdate = tree.xpath(startdatePattern)
+		startdate = get_text(startdate)
+	if enddatePattern != "":
+		enddate = tree.xpath(enddatePattern)
+		enddate = get_text(enddate)
 
 	url = requrl
 
@@ -403,7 +417,7 @@ def fetch_information(HTML, requrl):
 	starttime = analyze_text(starttime)
 	endtime = analyze_text(endtime)
 
-	starttime, endtime = analyze_time(dateAndTime, date, time, starttime, endtime)
+	starttime, endtime = analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate)
 
 	if starttime == "":
 		print "Can't crawl time information: ",
@@ -466,7 +480,7 @@ def format_time(timeString):
 	timeString = timeString.strip()
 	return timeString
 
-def analyze_time(dateAndTime, date, time, starttime, endtime):
+def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate):
 	returnedStarttime = ""
 	returnedEndtime = ""
 
@@ -478,55 +492,61 @@ def analyze_time(dateAndTime, date, time, starttime, endtime):
 	time = format_time(time)
 	starttime = format_time(starttime)
 	endtime = format_time(endtime)
+	startdate = format_time(startdate)
+	enddate = format_time(enddate)
 
 	try:
-		if dateAndTime != "":
-			for splitChar in splitCharList:
-				if splitChar in dateAndTime:
-					splitCharacter = splitChar
-					break
-
-			if splitCharacter != "":
-				returnedStarttime = dparser.parse(dateAndTime.split(splitCharacter)[0])
-				if isDateExist(dateAndTime.split(splitCharacter)[1]):
-					returnedEndtime = dparser.parse(dateAndTime.split(splitCharacter)[1])
-				else:
-					returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + dateAndTime.split(splitCharacter)[1])
-			elif endtime != "":
-				returnedStarttime = dparser.parse(dateAndTime)
-				returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + endtime)
-			else:
-				returnedStarttime = dparser.parse(dateAndTime)
-				returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
-
+		if startdate != "" and enddate != "" and starttime != "" and endtime != "":
+			returnedStarttime = dparser.parse(startdate + " " + starttime)
+			returnedEndtime = dparser.parse(enddate + " " + endtime)
 		else:
-			if date != "":
-				if time != "":
-					for splitChar in splitCharList:
-						if splitChar in time:
-							splitCharacter = splitChar
-							break
+			if dateAndTime != "":
+				for splitChar in splitCharList:
+					if splitChar in dateAndTime:
+						splitCharacter = splitChar
+						break
 
-					if splitCharacter != "":
-						returnedStarttime = dparser.parse(date + " " + time.split(splitCharacter)[0])
-						returnedEndtime = dparser.parse(date + " " + time.split(splitCharacter)[1])
+				if splitCharacter != "":
+					returnedStarttime = dparser.parse(dateAndTime.split(splitCharacter)[0])
+					if isDateExist(dateAndTime.split(splitCharacter)[1]):
+						returnedEndtime = dparser.parse(dateAndTime.split(splitCharacter)[1])
 					else:
-						returnedStarttime = dparser.parse(date + " " + time)
-						returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
+						returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + dateAndTime.split(splitCharacter)[1])
+				elif endtime != "":
+					returnedStarttime = dparser.parse(dateAndTime)
+					returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + endtime)
+				else:
+					returnedStarttime = dparser.parse(dateAndTime)
+					returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
+
+			else:
+				if date != "":
+					if time != "":
+						for splitChar in splitCharList:
+							if splitChar in time:
+								splitCharacter = splitChar
+								break
+
+						if splitCharacter != "":
+							returnedStarttime = dparser.parse(date + " " + time.split(splitCharacter)[0])
+							returnedEndtime = dparser.parse(date + " " + time.split(splitCharacter)[1])
+						else:
+							returnedStarttime = dparser.parse(date + " " + time)
+							returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
+					else:
+						if starttime != "" and endtime != "":
+							returnedStarttime = dparser.parse(date + " " + starttime)
+							returnedEndtime = dparser.parse(date + " " + endtime)
+						else:
+							returnedStarttime = dparser.parse(date + " " + "00:01:00")
+							returnedEndtime = returnedStarttime
 				else:
 					if starttime != "" and endtime != "":
-						returnedStarttime = dparser.parse(date + " " + starttime)
-						returnedEndtime = dparser.parse(date + " " + endtime)
+						returnedStarttime = dparser.parse(starttime)
+						returnedEndtime = dparse.parse(endtime)
 					else:
-						returnedStarttime = dparser.parse(date + " " + "00:01:00")
-						returnedEndtime = returnedStarttime
-			else:
-				if starttime != "" and endtime != "":
-					returnedStarttime = dparser.parse(starttime)
-					returnedEndtime = dparse.parse(endtime)
-				else:
-					returnedStarttime = ""
-					returnedEndtime = ""
+						returnedStarttime = ""
+						returnedEndtime = ""
 	except Exception as e:
 		print e
 		print "Something wrong in parsing time"

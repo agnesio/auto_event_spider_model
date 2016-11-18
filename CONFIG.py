@@ -2,7 +2,9 @@
 evtname = '//h1[@class="entry-title"]'
 evtdesc = '//div[@class="entry-content"]'
 starttime = '' #only contain starttime
+startdate = '' #only fill it with enddate
 endtime = '' #only contain endtime
+enddate = '' #only fill it with startdate
 date = '' #only contain date without time
 time = '' #contain the starttime and entime without date
 tags = 'a[@rel="category"]'
