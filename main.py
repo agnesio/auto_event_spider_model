@@ -484,7 +484,7 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	returnedStarttime = ""
 	returnedEndtime = ""
 
-	splitCharList = ["-"]
+	splitCharList = ["-", u"–"]
 	splitCharacter = ""
 
 	dateAndTime = format_time(dateAndTime)
