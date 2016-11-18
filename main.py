@@ -27,8 +27,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_auto
-urlFilter = itemFilter.urlFilter_auto
+events = Agnes.events_usgbc
+urlFilter = itemFilter.urlFilter_usgbc
 ######################
 
 visitList = []
@@ -451,17 +451,25 @@ def analyze_text(text):
 
 #precoss some time format
 def format_time(timeString):
+	uselessCharList = ["|", "@"]
+
 	if "time:" or "time" in timeString:
 		timeString = re.sub(r'time:?', '', timeString)
 	if "date:" or "date" in timeString:
 		timeString = re.sub(r'date:?', '', timeString)
+
+	for uselessChar in uselessCharList:
+		#build regex format
+		uselessChar = "\\" + uselessChar
+		timeString = re.sub(uselessChar, '', timeString)
+
 	timeString = timeString.strip()
 	return timeString
 
 def analyze_time(dateAndTime, date, time, starttime, endtime):
 	returnedStarttime = ""
 	returnedEndtime = ""
-	uselessCharList = ["|"]
+
 	splitCharList = ["-"]
 	splitCharacter = ""
 
@@ -473,11 +481,6 @@ def analyze_time(dateAndTime, date, time, starttime, endtime):
 
 	try:
 		if dateAndTime != "":
-			for uselessChar in uselessCharList:
-				#build regex format
-				uselessChar = "\\" + uselessChar
-				dateAndTime = re.sub(uselessChar, '', dateAndTime)
-
 			for splitChar in splitCharList:
 				if splitChar in dateAndTime:
 					splitCharacter = splitChar
@@ -622,7 +625,7 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	insert_item(item)
 
 def feed_url(url):
-	insert_url(url)
+	#insert_url(url)
 	pass
 
 def insert_url(url):
@@ -670,10 +673,10 @@ def insert_item(item):
 		print "Insert!"
 		crawledItem += 1
 		#print item["evtname"]
-		#print item
-		events.insert(item)
+		print item
+		#events.insert(item)
 		feed_url(item["url"])
-		#raw_input(item["url"])
+		raw_input(item["url"])
 
 if __name__ == '__main__':
 	main()
