@@ -27,8 +27,8 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_usgbc
-urlFilter = itemFilter.urlFilter_usgbc
+events = Agnes.events_auto
+urlFilter = itemFilter.urlFilter_auto
 ######################
 
 visitList = []
@@ -625,7 +625,7 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	insert_item(item)
 
 def feed_url(url):
-	#insert_url(url)
+	insert_url(url)
 	pass
 
 def insert_url(url):
@@ -673,10 +673,10 @@ def insert_item(item):
 		print "Insert!"
 		crawledItem += 1
 		#print item["evtname"]
-		print item
-		#events.insert(item)
+		#print item
+		events.insert(item)
 		feed_url(item["url"])
-		raw_input(item["url"])
+		#raw_input(item["url"])
 
 if __name__ == '__main__':
 	main()
