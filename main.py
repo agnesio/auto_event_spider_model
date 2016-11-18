@@ -477,6 +477,7 @@ def format_time(timeString):
 		uselessChar = "\\" + uselessChar
 		timeString = re.sub(uselessChar, '', timeString)
 
+	timeString = re.sub(r'\([\w\W]*?\)', '', timeString)
 	timeString = timeString.strip()
 	return timeString
 
