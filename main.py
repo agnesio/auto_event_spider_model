@@ -361,8 +361,12 @@ def fetch_information(HTML, requrl):
 	if picurlPattern != "":
 		picurl = tree.xpath(picurlPattern)
 		picurl = get_picurl(picurl)
+		if picurl != "" and picurl[0] == "/":
+			picurl = evtsource + picurl
 	else:
 		picurl = ""
+
+
 
 	if tagsPattern != "":
 		tags = tree.xpath(tagsPattern)
@@ -429,8 +433,7 @@ def get_picurl(lxmlItems):
 	picurl = ""
 	for lxmlItem in lxmlItems:
 		picurl += lxmlItem.get("src")
-	picurl = re.sub(r"^\W*?(?=\w)", "", picurl)
-
+	picurl = re.sub(r"^\W*?(?=[/|\w])", "", picurl)
 	return picurl
 
 def get_text(lxmlItems):
@@ -465,7 +468,8 @@ def analyze_text(text):
 
 #precoss some time format
 def format_time(timeString):
-	uselessCharList = ["|", "@"]
+	timeString = timeString.lower()
+	uselessCharList = ["|", "@", "from"]
 
 	if "time:" or "time" in timeString:
 		timeString = re.sub(r'time:?', '', timeString)
@@ -474,8 +478,9 @@ def format_time(timeString):
 
 	for uselessChar in uselessCharList:
 		#build regex format
-		uselessChar = "\\" + uselessChar
-		timeString = re.sub(uselessChar, '', timeString)
+		if len(uselessChar) == 1:
+			uselessChar = "\\" + uselessChar
+		timeString = re.sub(uselessChar, '', timeString, flags = re.I)
 
 	timeString = re.sub(r'\([\w\W]*?\)', '', timeString)
 	timeString = timeString.strip()
@@ -485,7 +490,7 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	returnedStarttime = ""
 	returnedEndtime = ""
 
-	splitCharList = ["-", u"–"]
+	splitCharList = ["-", u"–", "until"]
 	splitCharacter = ""
 
 	dateAndTime = format_time(dateAndTime)
@@ -495,6 +500,7 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	endtime = format_time(endtime)
 	startdate = format_time(startdate)
 	enddate = format_time(enddate)
+
 
 	try:
 		if startdate != "" and enddate != "" and starttime != "" and endtime != "":
