@@ -18,6 +18,7 @@ import unidecode
 from titlecase import titlecase
 
 from bs4 import BeautifulSoup
+from getGeoInfo import getGeoInfo
 
 reload(sys)
 sys.setdefaultencoding('utf-8') 
@@ -594,7 +595,8 @@ def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, e
 		evtdesc = modify_evtdesc(evtdesc)
 		location = modify_location(location)
 		evtname = titlecase(evtname)
-		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl)
+		latitude, longitude, maxdistance = getGeoInfo(location, community)
+		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, latitude, longitude, maxdistance)
 	else:
 		print "Exist: ",
 		print url
@@ -606,7 +608,7 @@ def check_url(url):
 		isExist = True
 	return isExist
 
-def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl):
+def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, latitude, longitude, maxdistance):
 
 	item = {}
 	item["url"] = HTMLParser.HTMLParser().unescape(url)
@@ -634,15 +636,15 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	item["admin"] = []
 	item["keywords"] = []
 	item["community"] = community
-	if tags == []:
-		item["other"] = {"tags":[]}
-	else:
-		item["other"] = {"tags":tags}
+	item["other"] = {"tags":tags}
 	item["other"]["tags"].extend(additionalTags)
 	item["evtsource"] = evtsource
 	item["just_crawled"] = True
 	item["isAvailable"] = True
-
+	
+	item["latitude"] = latitude
+	item["longitude"] = longitude
+	item["maxdistance"] = maxdistance
 	#print item
 	#print item["location"]
 	#raw_input("item")
