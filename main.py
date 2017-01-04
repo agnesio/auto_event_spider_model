@@ -28,8 +28,12 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
-events = Agnes.events_auto
-urlFilter = itemFilter.urlFilter_auto
+#events = Agnes.events_auto
+#urlFilter = itemFilter.urlFilter_auto
+#events = Agnes.events
+#urlFilter = itemFilter.urlFilter
+events = Agnes.events
+urlFilter = itemFilter.urlFilter
 ######################
 
 visitList = []
@@ -343,8 +347,9 @@ def fetch_information(HTML, requrl):
 	evtdesc = tree.xpath(evtdescPattern)
 	evtdesc = get_text(evtdesc)
 
-	location = tree.xpath(locationPattern)
-	location = get_text(location)
+	if locationPattern != "":
+		location = tree.xpath(locationPattern)
+		location = get_text(location)
 
 	if specificLocation != "":
 		location = specificLocation
@@ -447,6 +452,7 @@ def get_text(lxmlItems):
 	return text
 
 def analyze_tags(tags):
+	tags = tags.strip()
 	tagsSplitCharList = [",", "|", ";", "\\", "/", "."]
 	tagsSplitChar = ""
 	for tagsSplitCharItem in tagsSplitCharList:
@@ -469,7 +475,11 @@ def analyze_text(text):
 #precoss some time format
 def format_time(timeString):
 	timeString = timeString.lower()
-	uselessCharList = ["|", "@", "from"]
+	uselessCharList = [
+		"|", "@", "from", "est", "ast", "cst", "mst", "hst", "pst", 
+		"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+		"mon", "tue", "tues", "wed", "thu", "thur", "thurs", "fri", "sat", "sun",
+		]
 
 	if "time:" or "time" in timeString:
 		timeString = re.sub(r'time:?', '', timeString)
@@ -483,6 +493,8 @@ def format_time(timeString):
 		timeString = re.sub(uselessChar, '', timeString, flags = re.I)
 
 	timeString = re.sub(r'\([\w\W]*?\)', '', timeString)
+	timeString = re.sub(r'noon', '12:00 pm', timeString)
+	timeString = re.sub(r'midnight', '12:00 am', timeString)
 	timeString = timeString.strip()
 	return timeString
 
@@ -490,7 +502,7 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	returnedStarttime = ""
 	returnedEndtime = ""
 
-	splitCharList = ["-", u"–", "until"]
+	splitCharList = ["-", u"–", "until", "—"]
 	splitCharacter = ""
 
 	dateAndTime = format_time(dateAndTime)
@@ -500,7 +512,6 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	endtime = format_time(endtime)
 	startdate = format_time(startdate)
 	enddate = format_time(enddate)
-
 
 	try:
 		if startdate != "" and enddate != "" and starttime != "" and endtime != "":
@@ -533,7 +544,6 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 							if splitChar in time:
 								splitCharacter = splitChar
 								break
-
 						if splitCharacter != "":
 							returnedStarttime = dparser.parse(date + " " + time.split(splitCharacter)[0])
 							returnedEndtime = dparser.parse(date + " " + time.split(splitCharacter)[1])
@@ -632,6 +642,9 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 
 	item["attendees"] = []
 	item["attendcount"] = 0
+
+	item["attended"] = []
+	item["attendedCount"] = []
 
 	item["admin"] = []
 	item["keywords"] = []

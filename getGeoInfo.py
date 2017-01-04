@@ -137,32 +137,6 @@ def get_place(locationName, community):
 			longitude = ""
 			distance = ""
 	return latitude, longitude, distance
-"""
-def get_city_coordinate(cityName):
-	cityName = cityName.replace(" ", "+")
-	query = cityName
-	API_Key="AIzaSyCnXTXPt3cXDjVmP-PLcA3dvhlIC9KPs_E"
-	requrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?query="+query+"&key="+API_Key
-	req = urllib2.Request(requrl)
-	res_data = urllib2.urlopen(req)
-	res = res_data.read()
-	dic = json.loads(res)
-	if dic["status"] == "OK":
-		geometry = dic["results"][0]["geometry"]["location"]
-		result = str(geometry["lat"])+","+str(geometry["lng"])
-	else:
-		print cityName
-		raw_input("ERROR")
-		result = ""
-	return result
-
-def get_city_coordinate_dict():
-	cityCoordinateDict = {}
-	for (community,city_name) in city_name_dict.items():
-		cityCoordinate = get_city_coordinate(city_name)
-		cityCoordinateDict[community] = cityCoordinate
-	return cityCoordinateDict
-"""
 
 def getGeoInfo(location, community):
 	latitude, longitude, distance = get_coordinate_and_disance(location, community)

@@ -1,29 +1,30 @@
 #input xpath
-evtname = '//h1[@class="entry-title"]'
-evtdesc = '//div[@class="entry-content"]'
+evtname = '//h1[@itemprop="name"]/span'
+evtdesc = '//div[@class="section-block description"]/p[@itemprop="description"]'
 starttime = '' #only contain starttime
 startdate = '' #only fill it with enddate
 endtime = '' #only contain endtime
 enddate = '' #only fill it with startdate
-date = '' #only contain date without time
-time = '' #contain the starttime and entime without date
-tags = 'a[@rel="category"]'
-dateAndTime = '//p[@class="entry-date"]/time' #contain the starttime and endtime with date
-location = '//*[@id="content"]/div[2]/div/div/div/div/div[1]/div/div[1]/address'
+date = '//div[@itemprop="startDate"]/text()' #only contain date without time
+time = '//div[@itemprop="startDate"]/p' #contain the starttime and entime without date
+tags = '//div[@class="section-block description"]/p[2]/a'
+dateAndTime = '' #contain the starttime and endtime with date
+location = '//p[@itemprop="address"]'
 
 #all the picurl should be included in the src tag
-picurl = ''
+picurl = '//div[@class="image-viewer"]/ul/li/a/img'
 #input the list of community
-community = ["gwu", "american", "georgetown", "agnes"]
+community = ["gwu", "american", "georgetown", "howard", "agnes"]
 
 #input url #format: "http(s)://xx.xxx.edu(com/net)/xxx/xxx/xxx" The domain name should be the same
 mainUrlList = [
-				"http://www.aei.org/events/",
+				"http://washingtondc.eventful.com/events/categories?page_number=1",
 				]
 				
 #input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
 urlREList = [
-				'http://www.aei.org/events/[\w|-]*/',
+				'http://washingtondc.eventful.com/events/[\w|\-]*?/E\d-\d{3}-\d{9}-\d',
+				'http://washingtondc.eventful.com/events/categories?page_number=\d*',
 			]
 
 #remove url partial pattern
