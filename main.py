@@ -150,32 +150,37 @@ def visit_page():
 
 	while len(visitList) != 0:
 		requrl = visitList[0]
+		try:
+			#custom header
+			customHeaders = {
+						'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+						'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+						'Accept-Encoding': 'none',
+						'Accept-Language': 'en-US,en;q=0.8',
+						'Connection': 'keep-alive',
+						'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
+						}
 
-		#custom header
-		customHeaders = {
-					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-					'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-					'Accept-Encoding': 'none',
-					'Accept-Language': 'en-US,en;q=0.8',
-					'Connection': 'keep-alive',
-					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
-					}
+			req = urllib2.Request(requrl, headers = customHeaders)
+			res_data = urllib2.urlopen(req, timeout = 10)
+			encoding = res_data.info().get('Content-Encoding')
+			
+			#handle compressed file
+			if encoding in ('gzip','x-zip','deflate'):
+				res = decode(res_data, encoding)
+			else:
+				res = res_data.read()
 
-		req = urllib2.Request(requrl, headers = customHeaders)
-		res_data = urllib2.urlopen(req, timeout = 10)
-		encoding = res_data.info().get('Content-Encoding')
-		
-		if encoding in ('gzip','x-zip','deflate'):
-			res = decode(res_data, encoding)
-		else:
-			res = res_data.read()
+			analyze_page(res, requrl)
 
-		analyze_page(res, requrl)
-		"""
-		if "/frontpage?field_event_sub_type_tid[7]=7&field_event_sub_type_tid[8]=8&field_event_sub_type_tid[9]=9&field_event_sub_type_tid[11]=11&field_event_sub_type_tid[12]=12&field_event_sub_type_tid[13]=13&field_event_sub_type_tid[14]=14&field_event_sub_type_tid[15]=15&page=1" in requrl:
-			print visitList
-			raw_input("23")
-		"""
+			print requrl
+
+		except Exception as e:
+			print "#######################################"
+			print "Exception handling: " + str(e)
+			print requrl
+			print "#######################################"
+
 		visitList.remove(requrl)
 		visitedList.append(requrl)
 		#print visitedList
@@ -183,7 +188,7 @@ def visit_page():
 		
 		#sys.stdout.write('visited quantity: '+ str(len(visitedList))+ "\r")
 		#sys.stdout.flush()
-		print requrl
+
 		#print visitedList
 		#print visitList
 		#raw_input("123")
@@ -651,12 +656,21 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	item["community"] = community
 	item["other"] = {"tags":tags}
 	item["other"]["tags"].extend(additionalTags)
+	item["other"]["currentDistance"] = ""
 	item["evtsource"] = evtsource
 	item["just_crawled"] = True
 	item["isAvailable"] = True
 	
-	item["latitude"] = latitude
-	item["longitude"] = longitude
+	#using geo instead of latitude and longitude
+	#item["latitude"] = latitude
+	#item["longitude"] = longitude
+
+	#geo="70,-30"
+	if latitude != "" and longitude != "":
+		item["geo"] = str(latitude) + "," + str(longitude)
+	else:
+		item["geo"] = ""
+
 	item["maxdistance"] = maxdistance
 	#print item
 	#print item["location"]
