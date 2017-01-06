@@ -20,6 +20,7 @@ from titlecase import titlecase
 from bs4 import BeautifulSoup
 from getGeoInfo import getGeoInfo
 
+import parsedatetime as pdf
 reload(sys)
 sys.setdefaultencoding('utf-8') 
 
@@ -32,8 +33,10 @@ itemFilter = conn.itemFilter
 #urlFilter = itemFilter.urlFilter_auto
 #events = Agnes.events
 #urlFilter = itemFilter.urlFilter
-events = Agnes.events
-urlFilter = itemFilter.urlFilter
+# events = Agnes.events
+# urlFilter = itemFilter.urlFilter
+events = Agnes.events_american_cas
+urlFilter = itemFilter.urlFilter_american_cas
 ######################
 
 visitList = []
@@ -214,6 +217,7 @@ def analyze_page(HTML, requrl):
 	global stopSign
 	#remove script content
 	HTML = re.sub(r'<script[\w\W]*?</script>', '', HTML)
+	HTML = HTMLParser.HTMLParser().unescape(HTML)
 	soup = BeautifulSoup(HTML)
 	HTML = str(soup.body)
 	#print HTML
@@ -481,7 +485,7 @@ def analyze_text(text):
 def format_time(timeString):
 	timeString = timeString.lower()
 	uselessCharList = [
-		"|", "@", "from", "est", "ast", "cst", "mst", "hst", "pst", 
+		"|", "@", ",", "from", "est", "ast", "cst", "mst", "hst", "pst", 
 		"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
 		"mon", "tue", "tues", "wed", "thu", "thur", "thurs", "fri", "sat", "sun",
 		]
@@ -500,6 +504,8 @@ def format_time(timeString):
 	timeString = re.sub(r'\([\w\W]*?\)', '', timeString)
 	timeString = re.sub(r'noon', '12:00 pm', timeString)
 	timeString = re.sub(r'midnight', '12:00 am', timeString)
+
+	timeString = re.sub(r'\s{2,}', ' ', timeString)
 	timeString = timeString.strip()
 	return timeString
 
@@ -520,6 +526,8 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 
 	try:
 		if startdate != "" and enddate != "" and starttime != "" and endtime != "":
+			starttime = starttime.encode("ascii","ignore")
+			endtime = endtime.encode("ascii","ignore")
 			returnedStarttime = dparser.parse(startdate + " " + starttime)
 			returnedEndtime = dparser.parse(enddate + " " + endtime)
 		else:
@@ -530,15 +538,45 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 						break
 
 				if splitCharacter != "":
+					
+					rawStarttime = dateAndTime.split(splitCharacter)[0]
+					rawEndtime = dateAndTime.split(splitCharacter)[1]
+
+					rawStarttime = rawStarttime.encode("ascii","ignore")
+					rawEndtime = rawEndtime.encode("ascii","ignore")
+
+					isStarttimeDateExist = isDateExist(rawStarttime)
+					isEndtimeDateExist = isDateExist(rawEndtime)
+					if isEndtimeDateExist == False:
+						returnedStarttime = dparser.parse(rawStarttime)
+						if isDateExistInEndDay(rawEndtime):
+							returnedEndtime = dparser.parse(rawEndtime)
+						else:
+							returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + rawEndtime)
+					elif isStarttimeDateExist == True:
+						returnedStarttime = dparser.parse(rawStarttime)
+						returnedEndtime = dparser.parse(rawEndtime)
+					elif isStarttimeDateExist == False:
+						returnedEndtime = dparser.parse(rawEndtime)
+						returnedStarttime = dparser.parse(returnedEndtime.strftime('%Y-%m-%d') + " " + rawStarttime)
+					else:
+						print "ERROR"
+						raise NameError("returnTimeError")
+
+					"""
 					returnedStarttime = dparser.parse(dateAndTime.split(splitCharacter)[0])
 					if isDateExist(dateAndTime.split(splitCharacter)[1]):
 						returnedEndtime = dparser.parse(dateAndTime.split(splitCharacter)[1])
 					else:
 						returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + dateAndTime.split(splitCharacter)[1])
+					"""
 				elif endtime != "":
+					dateAndTime = dateAndTime.encode("ascii","ignore")
+					endtime = endtime.encode("ascii","ignore")
 					returnedStarttime = dparser.parse(dateAndTime)
 					returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + endtime)
 				else:
+					dateAndTime = dateAndTime.encode("ascii","ignore")
 					returnedStarttime = dparser.parse(dateAndTime)
 					returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
 
@@ -550,12 +588,46 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 								splitCharacter = splitChar
 								break
 						if splitCharacter != "":
+
+							rawStarttime = dateAndTime.split(splitCharacter)[0]
+							rawEndtime = dateAndTime.split(splitCharacter)[1]
+
+							rawStarttime = rawStarttime.encode("ascii","ignore")
+							rawEndtime = rawEndtime.encode("ascii","ignore")
+
+							isStarttimeDateExist = isDateExist(rawStarttime)
+							isEndtimeDateExist = isDateExist(rawEndtime)
+							if isEndtimeDateExist == False:
+								returnedStarttime = dparser.parse(rawStarttime)
+								if isDateExistInEndDay(rawEndtime):
+									returnedEndtime = dparser.parse(rawEndtime)
+								else:
+									returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + rawEndtime)
+							elif isStarttimeDateExist == True:
+								returnedStarttime = dparser.parse(rawStarttime)
+								returnedEndtime = dparser.parse(rawEndtime)
+							elif isStarttimeDateExist == False:
+								returnedEndtime = dparser.parse(rawEndtime)
+								returnedStarttime = dparser.parse(returnedEndtime.strftime('%Y-%m-%d') + " " + rawStarttime)
+							else:
+								print "ERROR"
+								raise NameError("returnTimeError")
+
+							"""
 							returnedStarttime = dparser.parse(date + " " + time.split(splitCharacter)[0])
 							returnedEndtime = dparser.parse(date + " " + time.split(splitCharacter)[1])
+							"""
 						else:
+							date = date.encode("ascii","ignore")
+							time = time.encode("ascii","ignore")
+
 							returnedStarttime = dparser.parse(date + " " + time)
 							returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
 					else:
+						date = date.encode("ascii","ignore")
+						starttime = starttime.encode("ascii","ignore")
+						endtime = endtime.encode("ascii","ignore")
+
 						if starttime != "" and endtime != "":
 							returnedStarttime = dparser.parse(date + " " + starttime)
 							returnedEndtime = dparser.parse(date + " " + endtime)
@@ -563,6 +635,9 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 							returnedStarttime = dparser.parse(date + " " + "00:01:00")
 							returnedEndtime = returnedStarttime
 				else:
+					starttime = starttime.encode("ascii","ignore")
+					endtime = endtime.encode("ascii","ignore")
+
 					if starttime != "" and endtime != "":
 						returnedStarttime = dparser.parse(starttime)
 						returnedEndtime = dparse.parse(endtime)
@@ -576,6 +651,13 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	return returnedStarttime, returnedEndtime
 
 def isDateExist(time):
+	cal = pdf.Calendar()
+	time, code = cal.parseDT(time)
+	if code == 2:
+		return False
+	return True
+
+def isDateExistInEndDay(time):
 	currentTime = datetime.datetime.now()
 	time = dparser.parse(time)
 	timeDate = time.strftime('%Y-%m-%d')
