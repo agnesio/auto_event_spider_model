@@ -127,15 +127,18 @@ def get_place(locationName, community):
 			distance = haversine((northeast["lng"],northeast["lat"]), (southwest["lng"],southwest["lat"]), miles=True)
 		else:
 			distance = ""
-		cityEventDistance = haversine((longitude, latitude),(cityLongitude, cityAltitude), miles=True)
-		if cityEventDistance > 25:
-			latitude = ""
-			longitude = ""
-			distance = ""
-		elif distance != "" and distance > 3:
-			latitude = ""
-			longitude = ""
-			distance = ""
+
+		# consider usgbc situation
+		if "usgbc" not in community:
+			cityEventDistance = haversine((longitude, latitude),(cityLongitude, cityAltitude), miles=True)
+			if cityEventDistance > 25:
+				latitude = ""
+				longitude = ""
+				distance = ""
+			elif distance != "" and distance > 3:
+				latitude = ""
+				longitude = ""
+				distance = ""
 	return latitude, longitude, distance
 
 def getGeoInfo(location, community):
