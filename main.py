@@ -19,6 +19,7 @@ from titlecase import titlecase
 
 from bs4 import BeautifulSoup
 from getGeoInfo import getGeoInfo
+import linecache
 
 import parsedatetime as pdf
 reload(sys)
@@ -35,8 +36,8 @@ itemFilter = conn.itemFilter
 #urlFilter = itemFilter.urlFilter
 # events = Agnes.events
 # urlFilter = itemFilter.urlFilter
-events = Agnes.events_american_cas
-urlFilter = itemFilter.urlFilter_american_cas
+events = Agnes.events_nbm
+urlFilter = itemFilter.urlFilter_nbm
 ######################
 
 visitList = []
@@ -182,6 +183,7 @@ def visit_page():
 			print "#######################################"
 			print "Exception handling: " + str(e)
 			print requrl
+			printException()
 			print "#######################################"
 
 		visitList.remove(requrl)
@@ -538,7 +540,6 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 						break
 
 				if splitCharacter != "":
-					
 					rawStarttime = dateAndTime.split(splitCharacter)[0]
 					rawEndtime = dateAndTime.split(splitCharacter)[1]
 
@@ -589,34 +590,15 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 								break
 						if splitCharacter != "":
 
-							rawStarttime = dateAndTime.split(splitCharacter)[0]
-							rawEndtime = dateAndTime.split(splitCharacter)[1]
+							rawStarttime = time.split(splitCharacter)[0]
+							rawEndtime = time.split(splitCharacter)[1]
 
 							rawStarttime = rawStarttime.encode("ascii","ignore")
 							rawEndtime = rawEndtime.encode("ascii","ignore")
 
-							isStarttimeDateExist = isDateExist(rawStarttime)
-							isEndtimeDateExist = isDateExist(rawEndtime)
-							if isEndtimeDateExist == False:
-								returnedStarttime = dparser.parse(rawStarttime)
-								if isDateExistInEndDay(rawEndtime):
-									returnedEndtime = dparser.parse(rawEndtime)
-								else:
-									returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + rawEndtime)
-							elif isStarttimeDateExist == True:
-								returnedStarttime = dparser.parse(rawStarttime)
-								returnedEndtime = dparser.parse(rawEndtime)
-							elif isStarttimeDateExist == False:
-								returnedEndtime = dparser.parse(rawEndtime)
-								returnedStarttime = dparser.parse(returnedEndtime.strftime('%Y-%m-%d') + " " + rawStarttime)
-							else:
-								print "ERROR"
-								raise NameError("returnTimeError")
+							returnedStarttime = dparser.parse(date + " " + rawStarttime)
+							returnedEndtime = dparser.parse(date + " " + rawEndtime)
 
-							"""
-							returnedStarttime = dparser.parse(date + " " + time.split(splitCharacter)[0])
-							returnedEndtime = dparser.parse(date + " " + time.split(splitCharacter)[1])
-							"""
 						else:
 							date = date.encode("ascii","ignore")
 							time = time.encode("ascii","ignore")
@@ -647,8 +629,11 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	except Exception as e:
 		print e
 		print "Something wrong in parsing time"
+		printException()
 
 	return returnedStarttime, returnedEndtime
+
+
 
 def isDateExist(time):
 	cal = pdf.Calendar()
@@ -814,6 +799,16 @@ def insert_item(item):
 		events.insert(item)
 		feed_url(item["url"])
 		#raw_input(item["url"])
+
+def printException():
+	exc_type, exc_obj, tb = sys.exc_info()
+	f = tb.tb_frame
+	lineno = tb.tb_lineno
+	filename = f.f_code.co_filename
+	linecache.checkcache(filename)
+	line = linecache.getline(filename, lineno, f.f_globals)
+	print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
+
 
 if __name__ == '__main__':
 	main()
