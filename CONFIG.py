@@ -1,30 +1,30 @@
 #input xpath
-evtname = '//h1[@class="entry-title"]'
-evtdesc = '//div[@class="entry-content"]'
+evtname = '//h2[@class="calendar-interior-title"]/text()'
+evtdesc = '//div[@class="calendar-content -prosaic"]/p'
 starttime = '' #only contain starttime
 startdate = '' #only fill it with enddate
 endtime = '' #only contain endtime
 enddate = '' #only fill it with startdate
 date = '' #only contain date without time
 time = '' #contain the starttime and entime without date
-tags = '//p[@class="entry-categories"]/a |  ul[@class="entry-tags"]'
-dateAndTime = '//time' #contain the starttime and endtime with date
-location = '//address'
+tags = ''
+dateAndTime = '//span[@class="showtime-cta-date"]' #contain the starttime and endtime with date
+location = '//span[@class="showtime-cta-venue"]'
 
 #all the picurl should be included in the src tag
-picurl = '//div[@class="entry-featured-image"]/img'
+picurl = '//div[@class="calendar-content -prosaic"]/p[2]/img'
 #input the list of community
 community = ["gwu", "american", "georgetown", "howard", "agnes"]
 
 #input url #format: "http(s)://xx.xxx.edu(com/net)/xxx/xxx/xxx" The domain name should be the same
 mainUrlList = [
-				"http://www.aei.org/events/",
+				"https://www.capitalfringe.org/calendar",
 				]
 				
 #input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
-#http://www.aei.org/events/regulatory-relief-for-small-businesses-a-conversation-with-house-small-business-committee-chairman-steve-chabot-r-oh/
+#https://www.capitalfringe.org/events/1003-amadou-kouyate-solo-kora-performance
 urlREList = [
-				'http://www.aei.org/events/[\w|-]*?/',
+				'https://www.capitalfringe.org/events/[\w|-]*?',
 			]
 
 #remove url partial pattern

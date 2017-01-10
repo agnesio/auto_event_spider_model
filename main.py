@@ -36,8 +36,8 @@ itemFilter = conn.itemFilter
 #urlFilter = itemFilter.urlFilter
 # events = Agnes.events
 # urlFilter = itemFilter.urlFilter
-events = Agnes.events_aei
-urlFilter = itemFilter.urlFilter_aei
+events = Agnes.events_capitalfringe
+urlFilter = itemFilter.urlFilter_capitalfringe
 ######################
 
 visitList = []
@@ -668,6 +668,7 @@ def modify_location(location):
 
 	for locationModifiedItem in locationModifiedList:
 		location = re.sub(locationModifiedItem, '', location)
+	location = location.encode("ascii","ignore")
 	return location
 
 
