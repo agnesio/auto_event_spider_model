@@ -1,30 +1,30 @@
 #input xpath
-evtname = '//*[@id="body"]/div/table[1]/tr/td[1]/p/span | //*[@id="lo-EventTitle"]'
-evtdesc = '//tr[@valign="top"] | //div[@id="lo-UserDetailEventDescription"]'
+evtname = '//h1[@class="entry-title"]'
+evtdesc = '//div[@class="entry-content"]'
 starttime = '' #only contain starttime
 startdate = '' #only fill it with enddate
 endtime = '' #only contain endtime
 enddate = '' #only fill it with startdate
-date = '//*[@id="body"]/div/table[2]/tr/td[1]/p/label | //*[@id="calendar-userdetail-date-a15"]' #only contain date without time
-time = '//*[@id="body"]/div/table[2]/tr/td[1]/p/text()[2] | //*[@id="lo-start_time"] | //tr[@valign="top"]/td[1]/p/text()' #contain the starttime and entime without date
-tags = ''
-dateAndTime = '' #contain the starttime and endtime with date
-location = '//*[@id="footer-top"]/div[1]/p[1]/text()[1] | //*[@id="footer-top"]/div[1]/p[1]/text()[2] | //*[@id="lo-CalendarAddressValue"]'
+date = '' #only contain date without time
+time = '' #contain the starttime and entime without date
+tags = '//p[@class="entry-categories"]/a |  ul[@class="entry-tags"]'
+dateAndTime = '//time' #contain the starttime and endtime with date
+location = '//address'
 
 #all the picurl should be included in the src tag
-picurl = '//*[@id="lo-UserDetailEventDescription"]/p[2]/span/img'
+picurl = '//div[@class="entry-featured-image"]/img'
 #input the list of community
 community = ["gwu", "american", "georgetown", "howard", "agnes"]
 
 #input url #format: "http(s)://xx.xxx.edu(com/net)/xxx/xxx/xxx" The domain name should be the same
 mainUrlList = [
-				"http://go.nbm.org/site/Calendar/",
+				"http://www.aei.org/events/",
 				]
 				
 #input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
-#https://www.sixthandi.org/event/friday-night-shabbat-services-mesorahdc-7/
+#http://www.aei.org/events/regulatory-relief-for-small-businesses-a-conversation-with-house-small-business-committee-chairman-steve-chabot-r-oh/
 urlREList = [
-				'http://go.nbm.org/site/Calendar/\d+?\?view=Detail&amp;id=\d+',
+				'http://www.aei.org/events/[\w|-]*?/',
 			]
 
 #remove url partial pattern

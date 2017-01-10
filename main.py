@@ -36,8 +36,8 @@ itemFilter = conn.itemFilter
 #urlFilter = itemFilter.urlFilter
 # events = Agnes.events
 # urlFilter = itemFilter.urlFilter
-events = Agnes.events_nbm
-urlFilter = itemFilter.urlFilter_nbm
+events = Agnes.events_aei
+urlFilter = itemFilter.urlFilter_aei
 ######################
 
 visitList = []
@@ -464,7 +464,7 @@ def get_text(lxmlItems):
 
 def analyze_tags(tags):
 	tags = tags.strip()
-	tagsSplitCharList = [",", "|", ";", "\\", "/", "."]
+	tagsSplitCharList = [",", "|", ";", "\\", "/", ".", "\r\n"]
 	tagsSplitChar = ""
 	for tagsSplitCharItem in tagsSplitCharList:
 		if tagsSplitCharItem in tags:
