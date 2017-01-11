@@ -39,8 +39,8 @@ itemFilter = conn.itemFilter
 #urlFilter = itemFilter.urlFilter
 # events = Agnes.events
 # urlFilter = itemFilter.urlFilter
-events = Agnes.events_capitalfringe
-urlFilter = itemFilter.urlFilter_capitalfringe
+events = Agnes.events_howardtheatre
+urlFilter = itemFilter.urlFilter_howardtheatre
 ######################
 
 visitList = []
@@ -493,7 +493,7 @@ def format_time(timeString):
 	timeString = timeString.lower()
 	uselessCharList = [
 		"|", "@", ",", "from", 
-		"est", "cst", "mst", "hst", "pst", "akst", "hst", "edt", "cdt", "mdt", "pdt", "et", "ct", "mt", "pt",
+		"est", "cst", "mst", "pst", "akst", "hast", "edt", "cdt", "mdt", "pdt", "akdt", "hadt", "et", "ct", "mt", "pt",
 		"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
 		"mon", "tue", "tues", "wed", "thu", "thur", "thurs", "fri", "sat", "sun",
 		]
@@ -536,8 +536,9 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 		if startdate != "" and enddate != "" and starttime != "" and endtime != "":
 			starttime = starttime.encode("ascii","ignore")
 			endtime = endtime.encode("ascii","ignore")
-			returnedStarttime = dparser.parse(startdate + " " + starttime)
-			returnedEndtime = dparser.parse(enddate + " " + endtime)
+			
+			returnedStarttime = parsetime(startdate + " " + starttime)
+			returnedEndtime = parsetime(enddate + " " + endtime)
 		else:
 			if dateAndTime != "":
 				for splitChar in splitCharList:
@@ -555,36 +556,36 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 					isStarttimeDateExist = isDateExist(rawStarttime)
 					isEndtimeDateExist = isDateExist(rawEndtime)
 					if isEndtimeDateExist == False:
-						returnedStarttime = dparser.parse(rawStarttime)
+						returnedStarttime = parsetime(rawStarttime)
 						if isDateExistInEndDay(rawEndtime):
-							returnedEndtime = dparser.parse(rawEndtime)
+							returnedEndtime = parsetime(rawEndtime)
 						else:
-							returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + rawEndtime)
+							returnedEndtime = parsetime(returnedStarttime.strftime('%Y-%m-%d') + " " + rawEndtime)
 					elif isStarttimeDateExist == True:
-						returnedStarttime = dparser.parse(rawStarttime)
-						returnedEndtime = dparser.parse(rawEndtime)
+						returnedStarttime = parsetime(rawStarttime)
+						returnedEndtime = parsetime(rawEndtime)
 					elif isStarttimeDateExist == False:
-						returnedEndtime = dparser.parse(rawEndtime)
-						returnedStarttime = dparser.parse(returnedEndtime.strftime('%Y-%m-%d') + " " + rawStarttime)
+						returnedEndtime = parsetime(rawEndtime)
+						returnedStarttime = parsetime(returnedEndtime.strftime('%Y-%m-%d') + " " + rawStarttime)
 					else:
 						print "ERROR"
 						raise NameError("returnTimeError")
 
 					"""
-					returnedStarttime = dparser.parse(dateAndTime.split(splitCharacter)[0])
+					returnedStarttime = parsetime(dateAndTime.split(splitCharacter)[0])
 					if isDateExist(dateAndTime.split(splitCharacter)[1]):
-						returnedEndtime = dparser.parse(dateAndTime.split(splitCharacter)[1])
+						returnedEndtime = parsetime(dateAndTime.split(splitCharacter)[1])
 					else:
-						returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + dateAndTime.split(splitCharacter)[1])
+						returnedEndtime = parsetime(returnedStarttime.strftime('%Y-%m-%d') + " " + dateAndTime.split(splitCharacter)[1])
 					"""
 				elif endtime != "":
 					dateAndTime = dateAndTime.encode("ascii","ignore")
 					endtime = endtime.encode("ascii","ignore")
-					returnedStarttime = dparser.parse(dateAndTime)
-					returnedEndtime = dparser.parse(returnedStarttime.strftime('%Y-%m-%d') + " " + endtime)
+					returnedStarttime = parsetime(dateAndTime)
+					returnedEndtime = parsetime(returnedStarttime.strftime('%Y-%m-%d') + " " + endtime)
 				else:
 					dateAndTime = dateAndTime.encode("ascii","ignore")
-					returnedStarttime = dparser.parse(dateAndTime)
+					returnedStarttime = parsetime(dateAndTime)
 					returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
 
 			else:
@@ -602,14 +603,14 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 							rawStarttime = rawStarttime.encode("ascii","ignore")
 							rawEndtime = rawEndtime.encode("ascii","ignore")
 
-							returnedStarttime = dparser.parse(date + " " + rawStarttime)
-							returnedEndtime = dparser.parse(date + " " + rawEndtime)
+							returnedStarttime = parsetime(date + " " + rawStarttime)
+							returnedEndtime = parsetime(date + " " + rawEndtime)
 
 						else:
 							date = date.encode("ascii","ignore")
 							time = time.encode("ascii","ignore")
 
-							returnedStarttime = dparser.parse(date + " " + time)
+							returnedStarttime = parsetime(date + " " + time)
 							returnedEndtime = returnedStarttime + datetime.timedelta(hours=1)
 					else:
 						date = date.encode("ascii","ignore")
@@ -617,18 +618,18 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 						endtime = endtime.encode("ascii","ignore")
 
 						if starttime != "" and endtime != "":
-							returnedStarttime = dparser.parse(date + " " + starttime)
-							returnedEndtime = dparser.parse(date + " " + endtime)
+							returnedStarttime = parsetime(date + " " + starttime)
+							returnedEndtime = parsetime(date + " " + endtime)
 						else:
-							returnedStarttime = dparser.parse(date + " " + "00:01:00")
+							returnedStarttime = parsetime(date + " " + "00:01:00")
 							returnedEndtime = returnedStarttime
 				else:
 					starttime = starttime.encode("ascii","ignore")
 					endtime = endtime.encode("ascii","ignore")
 
 					if starttime != "" and endtime != "":
-						returnedStarttime = dparser.parse(starttime)
-						returnedEndtime = dparse.parse(endtime)
+						returnedStarttime = parsetime(starttime)
+						returnedEndtime = parsetime(endtime)
 					else:
 						returnedStarttime = ""
 						returnedEndtime = ""
@@ -639,7 +640,18 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 
 	return returnedStarttime, returnedEndtime
 
-
+# use two ways to parse time string: dparser and parsedatetime
+def parsetime(timeString):
+	try:
+		returnTime = dparser.parse(timeString)
+	except Exception as e:
+		print e
+		print "parser doesn't work, using parsedatetime instead"
+		cal = pdf.Calendar()
+		returnTime, code = cal.parseDT(timeString)
+		if code == 0:
+			raise AttributeError("time parameter error")
+	return returnTime
 
 def isDateExist(time):
 	cal = pdf.Calendar()
@@ -685,10 +697,15 @@ def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, e
 		location = modify_location(location)
 		evtname = titlecase(evtname)
 		latitude, longitude, maxdistance = getGeoInfo(location, community)
+
+		#################################
+		# convert time to GMT
 		if starttime != endtime:
 			# starttime = convertTimetoGMT(starttime)
 			# endtime = convertTimetoGMT(endtime)
 			pass
+		#################################
+
 		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, latitude, longitude, maxdistance)
 	else:
 		print "Exist: ",
@@ -771,9 +788,15 @@ def insert_item(item):
 	global unqualifiedStarttimeCount
 	global unqualifiedEndtimeCount
 	global unqualifiedFlag
+	global timezoneName
 
+	timezoneInstance = timezone(timezoneName)
 	currentTime = datetime.datetime.now()
+
+	# add timezone information to current time
+	#currentTime = timezoneInstance.localize(currentTime)
 	endTime = currentTime + datetime.timedelta(weeks=8)
+
 	if item["starttime"] > endTime:
 		#if there are 10 continuous events that starttime is later than our period, we will stop running our spider
 		if unqualifiedFlag != 1:
@@ -813,11 +836,12 @@ def insert_item(item):
 
 def convertTimetoGMT(time):
 	global timezoneName
-
+	print time
 	timezoneInstance = timezone(timezoneName)
 	locTime = timezoneInstance.localize(time)
 	GMTTimeZoneInstance = timezone("GMT")
-	gmtTime = locTime.astimezone(GMTTimeZoneInstance) 
+	gmtTime = locTime.astimezone(GMTTimeZoneInstance)
+	print gmtTime
 	return gmtTime
 
 def printException():
