@@ -492,7 +492,8 @@ def analyze_text(text):
 def format_time(timeString):
 	timeString = timeString.lower()
 	uselessCharList = [
-		"|", "@", ",", "from", "est", "ast", "cst", "mst", "hst", "pst", 
+		"|", "@", ",", "from", 
+		"est", "cst", "mst", "hst", "pst", "akst", "hst", "edt", "cdt", "mdt", "pdt", "et", "ct", "mt", "pt",
 		"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
 		"mon", "tue", "tues", "wed", "thu", "thur", "thurs", "fri", "sat", "sun",
 		]
@@ -520,7 +521,7 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	returnedStarttime = ""
 	returnedEndtime = ""
 
-	splitCharList = ["-", u"–", "until", "—"]
+	splitCharList = ["-", u"–", "until", "—", "to"]
 	splitCharacter = ""
 
 	dateAndTime = format_time(dateAndTime)
