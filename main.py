@@ -22,6 +22,9 @@ from getGeoInfo import getGeoInfo
 import linecache
 
 import parsedatetime as pdf
+import pytz
+from pytz import timezone
+
 reload(sys)
 sys.setdefaultencoding('utf-8') 
 
@@ -112,6 +115,7 @@ def load_element():
 	global locationModifiedList
 	global tagsPattern
 	global specificLocation
+	global timezoneName
 
 	evtnamePattern = Config.evtname
 	evtdescPattern = Config.evtdesc
@@ -138,6 +142,7 @@ def load_element():
 	evtdescModifiedList = Config.evtdescModifiedList
 	locationModifiedList = Config.locationModifiedList
 	specificLocation = Config.specificLocation
+	timezoneName = Config.timezoneName
 
 	if evtsource == "":
 		evtsource = re.sub(r'https?:(//)?(www\.)?', '', mainUrlList[0])
@@ -679,6 +684,10 @@ def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, e
 		location = modify_location(location)
 		evtname = titlecase(evtname)
 		latitude, longitude, maxdistance = getGeoInfo(location, community)
+		if starttime != endtime:
+			# starttime = convertTimetoGMT(starttime)
+			# endtime = convertTimetoGMT(endtime)
+			pass
 		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, latitude, longitude, maxdistance)
 	else:
 		print "Exist: ",
@@ -800,6 +809,15 @@ def insert_item(item):
 		events.insert(item)
 		feed_url(item["url"])
 		#raw_input(item["url"])
+
+def convertTimetoGMT(time):
+	global timezoneName
+
+	timezoneInstance = timezone(timezoneName)
+	locTime = timezoneInstance.localize(time)
+	GMTTimeZoneInstance = timezone("GMT")
+	gmtTime = locTime.astimezone(GMTTimeZoneInstance) 
+	return gmtTime
 
 def printException():
 	exc_type, exc_obj, tb = sys.exc_info()

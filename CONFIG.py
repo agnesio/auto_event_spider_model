@@ -11,6 +11,9 @@ tags = ''
 dateAndTime = '//span[@class="showtime-cta-date"]' #contain the starttime and endtime with date
 location = '//span[@class="showtime-cta-venue"]'
 
+#timezone information
+timezoneName = 'US/Eastern'
+
 #all the picurl should be included in the src tag
 picurl = '//div[@class="calendar-content -prosaic"]/p[2]/img'
 #input the list of community
