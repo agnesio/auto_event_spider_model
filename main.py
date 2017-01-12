@@ -39,8 +39,8 @@ itemFilter = conn.itemFilter
 #urlFilter = itemFilter.urlFilter
 # events = Agnes.events
 # urlFilter = itemFilter.urlFilter
-events = Agnes.events_howardtheatre
-urlFilter = itemFilter.urlFilter_howardtheatre
+events = Agnes.events_930
+urlFilter = itemFilter.urlFilter_930
 ######################
 
 visitList = []
@@ -224,6 +224,7 @@ def analyze_page(HTML, requrl):
 	global stopSign
 	#remove script content
 	HTML = re.sub(r'<script[\w\W]*?</script>', '', HTML)
+	HTML = re.sub(r'<!--[\w\W]*?-->', '', HTML)
 	HTML = HTMLParser.HTMLParser().unescape(HTML)
 	soup = BeautifulSoup(HTML)
 	HTML = str(soup.body)
@@ -382,8 +383,10 @@ def fetch_information(HTML, requrl):
 	if picurlPattern != "":
 		picurl = tree.xpath(picurlPattern)
 		picurl = get_picurl(picurl)
-		if picurl != "" and picurl[0] == "/":
+		if picurl != "" and picurl[0] == "/" and picurl[1] != "/":
 			picurl = evtsource + picurl
+		elif picurl != "" and picurl[0] == "/" and picurl[1] == "/":
+			picurl = picurl[2:]
 	else:
 		picurl = ""
 
@@ -478,8 +481,13 @@ def analyze_tags(tags):
 	if tagsSplitChar != "":
 		tagsList = tags.split(tagsSplitChar)
 	else:
-		tagsList = [tags]		
-	return tagsList
+		tagsList = [tags]
+	returnedTagsList = []
+	for tag in tagsList:
+		tag = tag.strip()
+		if tag != "":
+			returnedTagsList.append(tag)
+	return returnedTagsList
 
 def analyze_text(text):
 	text = re.sub(r'<br>', ' ', text)
@@ -686,6 +694,7 @@ def modify_location(location):
 
 	for locationModifiedItem in locationModifiedList:
 		location = re.sub(locationModifiedItem, '', location)
+	location = re.sub(r'\s+', ' ', location)
 	location = location.encode("ascii","ignore")
 	return location
 

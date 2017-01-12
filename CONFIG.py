@@ -1,15 +1,16 @@
 #input xpath
-evtname = '//p[@class="show-primary-info-title"]'
-evtdesc = '//div[@id="main"]/div[@class="container"]'
+evtname = '//h1[@class="headliners summary"]'
+evtdesc = '//div[@class="bio"]/text()'
 starttime = '' #only contain starttime
 startdate = '' #only fill it with enddate
 endtime = '' #only contain endtime
 enddate = '' #only fill it with startdate
-date = '//p[@class="show-primary-info-showdate"]' #only contain date without time
-time = '//p[@class="show-primary-info-showtime"]' #contain the starttime and/or entime without date
+date = '//h2[@class="dates"]' #only contain date without time
+time = '//h2[@class="times"]/span[@class="doors"]' #contain the starttime and/or entime without date
 tags = ''
 dateAndTime = '' #contain the starttime and endtime with date
-location = ''
+location = '//div[@class="venue-info"]/text()'
+
 
 #timezone information: 'US/Alaska', 'US/Aleutian', 'US/Arizona', 'US/Central', 'US/East-Indiana', 'US/Eastern', 'US/Hawaii', 'US/Indiana-Starke', 'US/Michigan', 'US/Mountain', 'US/Pacific', 'US/Pacific-New', 'US/Samoa'
 ## "US/Eastern" #EST EDT
@@ -22,19 +23,19 @@ location = ''
 timezoneName = 'US/Eastern'
 
 #all the picurl should be included in the src tag
-picurl = '//p[@class="show-artist-img"]/img'
+picurl = '//div[@class="entry-content event"]/div/img'
 #input the list of community
-community = ["gwu", "american", "georgetown", "howard", "agnes"]
+community = ["gwu", "american", "georgetown", "howard", "agnes", "groupten"]
 
 #input url #format: "http(s)://xx.xxx.edu(com/net)/xxx/xxx/xxx" The domain name should be the same
 mainUrlList = [
-				"http://thehowardtheatre.com/",
+				'http://www.930.com/concerts/',
 				]
 				
 #input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
-#http://thehowardtheatre.com/show/2017/02/22/rawdc-presents-motif/
+#http://www.930.com/event/1364691-cracker-camper-van-beethoven-washington/
 urlREList = [
-				'http://thehowardtheatre.com/show/\d{4}/\d{2}/\d{2}/[\w|-]*?/',
+				'http://www.930.com/event/[\w|\-]+?/',
 			]
 
 #remove url partial pattern
@@ -46,7 +47,7 @@ evtdescModifiedList = []
 locationModifiedList = []
 
 #input specific location, can ignore
-specificLocation = "620 T Street NW, Washington DC, 20001"
+specificLocation = ""
 
 #input a list of half regualr experssion
 urlPrefixList = []
