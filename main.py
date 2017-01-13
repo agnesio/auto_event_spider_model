@@ -39,8 +39,8 @@ itemFilter = conn.itemFilter
 #urlFilter = itemFilter.urlFilter
 # events = Agnes.events
 # urlFilter = itemFilter.urlFilter
-events = Agnes.events_930
-urlFilter = itemFilter.urlFilter_930
+events = Agnes.events_runwashington
+urlFilter = itemFilter.urlFilter_runwashington
 ######################
 
 visitList = []
@@ -839,7 +839,10 @@ def insert_item(item):
 		crawledItem += 1
 		#print item["evtname"]
 		#print item
-		events.insert(item)
+		if selfDefFilter():
+			events.insert(item)
+		else:
+			print "Filtered by selfDefFilter!! Event doesn't insert into MongoDB"
 		feed_url(item["url"])
 		#raw_input(item["url"])
 
@@ -862,6 +865,9 @@ def printException():
 	line = linecache.getline(filename, lineno, f.f_globals)
 	print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
 
+
+def selfDefFilter():
+	return True
 
 if __name__ == '__main__':
 	main()
