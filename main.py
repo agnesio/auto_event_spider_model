@@ -33,14 +33,13 @@ sys.setdefaultencoding('utf-8')
 conn = connection.conn
 Agnes = conn.Agnes
 itemFilter = conn.itemFilter
+eventslowercase = Agnes.eventslowercase
 #events = Agnes.events_auto
 #urlFilter = itemFilter.urlFilter_auto
 #events = Agnes.events
 #urlFilter = itemFilter.urlFilter
-# events = Agnes.events
-# urlFilter = itemFilter.urlFilter
-events = Agnes.events_runwashington
-urlFilter = itemFilter.urlFilter_runwashington
+events = Agnes.events
+urlFilter = itemFilter.urlFilter
 ######################
 
 visitList = []
@@ -273,7 +272,10 @@ def fetch_url(HTML):
 	for url in urlList:
 		if not checkUselessUrl(url):
 			if "http" not in url:
-				url = domain + url
+				if url[0] != "/":
+					url = domain + "/" + url
+				else:
+					url = domain + url
 			if url not in visitedList and url not in visitList:
 				if not isUrlPrefix:
 					if domain in url:
@@ -563,6 +565,7 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 
 					isStarttimeDateExist = isDateExist(rawStarttime)
 					isEndtimeDateExist = isDateExist(rawEndtime)
+
 					if isEndtimeDateExist == False:
 						returnedStarttime = parsetime(rawStarttime)
 						if isDateExistInEndDay(rawEndtime):
@@ -666,14 +669,20 @@ def isDateExist(time):
 	time, code = cal.parseDT(time)
 	if code == 2:
 		return False
+	elif code == 0:
+		return False
 	return True
 
 def isDateExistInEndDay(time):
-	currentTime = datetime.datetime.now()
-	time = dparser.parse(time)
-	timeDate = time.strftime('%Y-%m-%d')
-	currentTimeDate = currentTime.strftime('%Y-%m-%d')
-	return timeDate != currentTimeDate
+	try:
+		currentTime = datetime.datetime.now()
+		time = dparser.parse(time)
+		timeDate = time.strftime('%Y-%m-%d')
+		currentTimeDate = currentTime.strftime('%Y-%m-%d')
+		return timeDate != currentTimeDate
+	except Exception as e:
+		print e
+		return False
 
 def modify_evtname(evtname):
 	global evtnameModifiedList
@@ -835,12 +844,14 @@ def insert_item(item):
 		return 0
 	else:
 		unqualifiedFlag = 3
-		print "Insert!"
-		crawledItem += 1
+
 		#print item["evtname"]
 		#print item
-		if selfDefFilter():
-			events.insert(item)
+		if selfDefFilter(item):
+			print "Insert!"
+			crawledItem += 1
+			inserted_id = events.insert(item)
+			insertEventForKazem(item, inserted_id)
 		else:
 			print "Filtered by selfDefFilter!! Event doesn't insert into MongoDB"
 		feed_url(item["url"])
@@ -865,8 +876,26 @@ def printException():
 	line = linecache.getline(filename, lineno, f.f_globals)
 	print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
 
+def insertEventForKazem(event, inserted_id):
+	try:
+		event["events_id"] = inserted_id
+		event["evtname"] = event["evtname"].lower()
+		event["url"] = event["url"].lower()
+		event["location"] = event["location"].lower()
+		event["evtdesc"] = event["evtdesc"].lower()
+		tagList = []
+		for tag in event["other"]["tags"]:
+			tagList.append(tag.lower())
+		event["other"]["tags"] = tagList
+		eventslowercase.insert(event)
+	except Exception as e:
+		print "############################"
+		print "ERROR:"
+		print e
+		print "############################"
+		eventslowercase.insert(event)
 
-def selfDefFilter():
+def selfDefFilter(item):
 	return True
 
 if __name__ == '__main__':

@@ -18,6 +18,11 @@ city_name_dict = {
 	"princeton" : "Princeton, nj",
 	"brown" : "Providence, ri",
 	"colgate" : "Hamilton, ny",
+	"trinitydc" : "Washington, dc",
+	"udc" : "Washington, dc",
+	"cua" : "Washington, dc",
+	"marymount" : "Washington, dc",
+	"gmu" : "Washington, dc"
 	}
 
 cityCoordinateDict = {
@@ -30,7 +35,12 @@ cityCoordinateDict = {
 	'gwu': '38.9071923,-77.0368707',
 	'american': '38.9071923,-77.0368707',
 	'yale': '41.308274,-72.9278835',
-	'dartmouth': '43.7044406,-72.2886934'
+	'dartmouth': '43.7044406,-72.2886934',
+	"trinitydc" : "38.9071923,-77.0368707",
+	"udc" : "38.9071923,-77.0368707",
+	"cua" : "38.9071923,-77.0368707",
+	"marymount" : "38.9071923,-77.0368707",
+	"gmu" : "38.9071923,-77.0368707",
 	}
 
 administrativeAreaDict = {
@@ -44,6 +54,11 @@ administrativeAreaDict = {
 	"princeton" : "nj",
 	"brown" : "ri",
 	"colgate" : "ny",
+	"trinitydc" : "dc",
+	"udc" : "dc",
+	"cua" : "dc",
+	"marymount" : "dc",
+	"gmu" : "dc",
 }
 
 def get_coordinate_and_disance(address, community = []):

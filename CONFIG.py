@@ -1,16 +1,38 @@
+import datetime
+############################################################
+#fetch server date info to construct the start url
+currentTime = datetime.datetime.now()
+#startTime = currentTime + datetime.timedelta(days=-3)
+startTime = currentTime
+startTimeStr = startTime.strftime('%Y-%m-%d')
+
+endTime = currentTime + datetime.timedelta(weeks=8)
+endTimeStr = endTime.strftime('%Y-%m-%d')
+
+startTimeList = startTimeStr.split("-")
+endTimeList = endTimeStr.split("-")
+
+startYear = startTimeList[0]
+startMonth = startTimeList[1]
+startDate = startTimeList[2]
+
+endYear = endTimeList[0]
+endMonth = endTimeList[1]
+endDate = endTimeList[2]
+###############################################################
 #input xpath
-evtname = '//h1[@itemprop="headline"]/text()'
-evtdesc = '//div[@class="ng-article-lead"]'
+evtname = '//li[@class="social-title"]/h2'
+evtdesc = '//div[@class="event-info-description __sectionmargintophalf"]/p'
 starttime = '' #only contain starttime
 startdate = '' #only fill it with enddate
 endtime = '' #only contain endtime
 enddate = '' #only fill it with startdate
-date = '//div[@style="display:inline-block;"]/h4/text()' #only contain date without time
-time = '//li/div[@class="ng-article-subhead ng-margin-remove"]/text()' #contain the starttime and/or entime without date
-tags = '//p[@class="ng-article-kicker"]'
-dateAndTime = '' #contain the starttime and endtime with date
-location = ''
-
+date = '' #only contain date without time
+time = '' #contain the starttime and/or entime without date
+tags = '//p[@style="margin-bottom:0;"]/text()'
+#dateAndTime = '//div[@id="mainContent"]/section[@class="section container-eventdetails"][1]//div[@class="event-info"]/div[@class="event-info-h3indent"]' #contain the starttime and endtime with date
+dateAndTime = '//*[@id="mainContent"]/section[1]/div/div[1]/div[1]/div[1]/text()[1]'
+location = '//div[@class="event-info hidden-xs"]/div[@class="event-info-h3indent"]/text()'
 
 #timezone information: 'US/Alaska', 'US/Aleutian', 'US/Arizona', 'US/Central', 'US/East-Indiana', 'US/Eastern', 'US/Hawaii', 'US/Indiana-Starke', 'US/Michigan', 'US/Mountain', 'US/Pacific', 'US/Pacific-New', 'US/Samoa'
 ## "US/Eastern" #EST EDT
@@ -25,20 +47,17 @@ timezoneName = 'US/Eastern'
 #all the picurl should be included in the src tag
 picurl = ''
 #input the list of community
-community = ["gwu", "american", "georgetown", "howard", "agnes", "groupten"]
+community = ["cua", "groupten"]
 
 #input url #format: "http(s)://xx.xxx.edu(com/net)/xxx/xxx/xxx" The domain name should be the same
 mainUrlList = [
-				'http://nationalgeographic.org/dc/events/?q=&occurrences=&per_page=90&category=Talk&category=Film',
-				'http://nationalgeographic.org/dc/events/?q=&occurrences=&per_page=90&category=Student+Matinees+',
-				'http://nationalgeographic.org/dc/events/?q=&occurrences=&per_page=90&category=Happy+Hour',
-				'http://nationalgeographic.org/dc/events/?q=&occurrences=&per_page=90&category=Film',
+				'https://nest.cua.edu/events',
 				]
 				
 #input a list of regular expression #format: "http(s)://xx.xxx.edu(com/net)/xxx""
-#http://nationalgeographic.org/dc/events/beauty-and-bizarre/
+#/events/details/1175638
 urlREList = [
-				'http://nationalgeographic.org/dc/events/[\w|\-]*/',
+				'/events/details/\d*',
 			]
 
 #remove url partial pattern
@@ -50,7 +69,7 @@ evtdescModifiedList = []
 locationModifiedList = []
 
 #input specific location, can ignore
-specificLocation = "The National Geographic Museum, 1145 17th Street, NW, Washington, DC 20036"
+specificLocation = ""
 
 #input a list of half regualr experssion
 urlPrefixList = []
