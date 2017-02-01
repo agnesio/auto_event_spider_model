@@ -1,14 +1,11 @@
-import dateutil.parser as parser
-import sys
-import time
-reload(sys)
-sys.setdefaultencoding('utf-8')
+from threading import Timer
+import random
+import string
+import HTMLParser
 
-import parsedatetime as pdf
+def hello():
+	with open("openword.txt","w") as f:
+		f.write("hello, world")
 
-# return code: 1.date 2.time 3.datetime
-timeText = "washington dc"
-cal = pdf.Calendar()
-time, code = cal.parseDT(timeText)
-print time, code
-#print parser.parse(timeText)
+if __name__ == '__main__':
+  print HTMLParser.HTMLParser().unescape("a&amp;b")

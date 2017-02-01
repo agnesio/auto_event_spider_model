@@ -8,6 +8,8 @@ import googlemaps
 gmaps = googlemaps.Client(key='AIzaSyCnXTXPt3cXDjVmP-PLcA3dvhlIC9KPs_E')
 
 city_name_dict = {
+	"groupten" : "Washington, dc",
+	"agnes" : "Washington, dc",
 	"georgetown": "Washington, dc",
 	"gwu": "Washington, dc",
 	"howard" : "Washington, dc",
@@ -22,10 +24,12 @@ city_name_dict = {
 	"udc" : "Washington, dc",
 	"cua" : "Washington, dc",
 	"marymount" : "Washington, dc",
-	"gmu" : "Washington, dc"
+	"gmu" : "Washington, dc",
 	}
 
 cityCoordinateDict = {
+	"groupten" : "38.9071923,-77.0368707",
+	"agnes" : "38.9071923,-77.0368707",
 	'colgate': '42.8270136,-75.5446238',
 	'georgetown': '38.9071923,-77.0368707',
 	'brown': '41.8239891,-71.4128343',
@@ -44,6 +48,8 @@ cityCoordinateDict = {
 	}
 
 administrativeAreaDict = {
+	"groupten" : "dc",
+	"agnes" : "dc",
 	"georgetown": "dc",
 	"gwu": "dc",
 	"howard" : "dc",
@@ -64,19 +70,20 @@ administrativeAreaDict = {
 def get_coordinate_and_disance(address, community = []):
 	global administrativeAreaDict
 	addressUrl = address.replace(' ', '+')
-	administrativeArea = ""
+	administrativeArea = "dc"
 	if community != []:
 		for item in community:
-			if item.lower() in administrativeAreaDict:
+			if item.lower() in administrativeAreaDict and item.lower() != "groupten" and item.lower() != "agnes":
 				administrativeArea = administrativeAreaDict[item]
 				break
+
 	if community != [] and community != ["agnes"] and administrativeArea == "" and "usgbc" not in community:
 		print address
 		print community
 		raw_input("community error")
 	components = {'administrative_area':administrativeArea}
 	coordinate = gmaps.geocode(address = address, components = components)
-	
+	print coordinate
 	if coordinate == []:
 		latitude = ""
 		longitude = ""
@@ -85,6 +92,7 @@ def get_coordinate_and_disance(address, community = []):
 		coordinate = coordinate[0] #choose the first reason
 		latitude = coordinate["geometry"]["location"]["lat"]
 		longitude = coordinate["geometry"]["location"]["lng"]
+		print "orginal data: " + str(latitude) + "," + str(longitude)
 		if "bounds" in coordinate["geometry"]:
 			northeast = coordinate["geometry"]["bounds"]["northeast"]
 			southwest = coordinate["geometry"]["bounds"]["southwest"]
@@ -96,15 +104,41 @@ def get_coordinate_and_disance(address, community = []):
 			latitude = ""
 			longitude = ""
 			distance = ""
+
+		if longitude != "" and latitude != "":
+			cityLongitude = "-77.0368707"
+			cityAltitude = "38.9071923"
+			if community != [] and "usgbc" not in community:
+				for item in community:
+					if item.lower() in cityCoordinateDict and item.lower() != "groupten" and item.lower() != "agnes":
+						location = cityCoordinateDict[item]
+						cityLongitude = float(location.split(",")[1])
+						cityAltitude = float(location.split(",")[0])
+						break
+
+			if cityLongitude != "" and cityAltitude != "":
+				cityEventDistance = haversine((longitude, latitude),(cityLongitude, cityAltitude), miles=True)
+				print "distance: " + str(cityEventDistance)
+				if cityEventDistance > 25:
+					latitude = ""
+					longitude = ""
+					distance = ""
+				elif distance != "" and distance > 3:
+					latitude = ""
+					longitude = ""
+					distance = ""
+		
 	return latitude, longitude, distance
 
 def get_place(locationName, community):
 	locationName = locationName.replace(" ", "+")
 	query = locationName
 	location = ""
-	if community != []:
+	cityLongitude = "-77.0368707"
+	cityAltitude = "38.9071923"
+	if community != [] and "usgbc" not in community:
 		for item in community:
-			if item.lower() in cityCoordinateDict:
+			if item.lower() in cityCoordinateDict and item.lower() != "agnes" and item.lower() != "groupten":
 				location = cityCoordinateDict[item]
 				cityLongitude = float(location.split(",")[1])
 				cityAltitude = float(location.split(",")[0])
@@ -146,6 +180,7 @@ def get_place(locationName, community):
 		# consider usgbc situation
 		if "usgbc" not in community:
 			cityEventDistance = haversine((longitude, latitude),(cityLongitude, cityAltitude), miles=True)
+			print "distance: " + str(cityEventDistance)
 			if cityEventDistance > 25:
 				latitude = ""
 				longitude = ""
@@ -159,6 +194,7 @@ def get_place(locationName, community):
 def getGeoInfo(location, community):
 	latitude, longitude, distance = get_coordinate_and_disance(location, community)
 	if latitude == "":
+		print "No data from get_coordinate_and_disance"
 		latitude, longitude, distance = get_place(location, community)
 	return latitude, longitude, distance
 
@@ -170,8 +206,10 @@ def getGeoInfoWithRawOffset(location, community):
 	return latitude, longitude, distance, rawOffset
 
 if __name__ == '__main__':
-	location = "Gelman Library"
-	community = ["gwu"]
-	print getGeoInfo(location, community)
+	# print get_coordinate_and_disance("Philips 101",["groupten","agnes"])
+	# print getGeoInfo(location, community)
+	# print getGeoInfo("gelman library",["gwu"])
+	# print getGeoInfo("gelman library",["groupten", "cornell"])
+	# pass
 
 

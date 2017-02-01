@@ -718,10 +718,8 @@ def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, e
 
 		#################################
 		# convert time to GMT
-		if starttime != endtime:
-			# starttime = convertTimetoGMT(starttime)
-			# endtime = convertTimetoGMT(endtime)
-			pass
+		starttime = convertTimetoGMT(starttime)
+		endtime = convertTimetoGMT(endtime)
 		#################################
 
 		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, latitude, longitude, maxdistance)
