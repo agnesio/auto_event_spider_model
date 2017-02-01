@@ -210,6 +210,4 @@ if __name__ == '__main__':
 	# print getGeoInfo(location, community)
 	# print getGeoInfo("gelman library",["gwu"])
 	# print getGeoInfo("gelman library",["groupten", "cornell"])
-	# pass
-
-
+	pass
