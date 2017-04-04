@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
+#######################
+###  Picurl Add On  ###
+#######################
 import CONFIG as Config
 import urllib2
 import re
 import gzip
 import zlib
 import StringIO
+import requests
 
 from lxml import etree
 import lxml
 import dateutil.parser as dparser
 import datetime
-import connection
 import sys
 import time
 import HTMLParser
@@ -18,28 +21,35 @@ import unidecode
 from titlecase import titlecase
 
 from bs4 import BeautifulSoup
-from getGeoInfo import getGeoInfo
 import linecache
 
 import parsedatetime as pdf
 import pytz
 from pytz import timezone
 
+import os
+sys.path.append(os.path.abspath('../Scripts'))
+import dbConnection
+from feedData import insertEventData, insertFilter
+from getGeoInfo import getGeoInfo
+
 reload(sys)
 sys.setdefaultencoding('utf-8') 
 
 #####################
 #database setting
-conn = connection.conn
-Agnes = conn.Agnes
+conn = dbConnection.conn
+LC = conn.Law_Conferences
 itemFilter = conn.itemFilter
-eventslowercase = Agnes.eventslowercase
+eventslowercase = LC.eventslowercase
 #events = Agnes.events_auto
 #urlFilter = itemFilter.urlFilter_auto
 #events = Agnes.events
 #urlFilter = itemFilter.urlFilter
-events = Agnes.events
+events = LC.events
 urlFilter = itemFilter.urlFilter
+communities = LC.communities
+evtSource_Community = LC.evtSource_Community
 ######################
 
 visitList = []
@@ -60,7 +70,6 @@ datePattern = ""
 dateAndTimePattern = ""
 locationPattern = ""
 tagsPattern = []
-community = []
 mainUrlList = ""
 urlREList = []
 subUrlList = []
@@ -77,6 +86,11 @@ specificLocation = ""
 unqualifiedStarttimeCount = 0
 unqualifiedEndtimeCount = 0
 unqualifiedFlag = 3
+
+cityCoordinateDict = {}
+localityDict = {}
+evtsourceCommunityDict = {}
+evtsourceYearDict = {}
 
 def main():
 	load_element()
@@ -98,7 +112,6 @@ def load_element():
 	global timePattern
 	global dateAndTimePattern
 	global locationPattern
-	global community
 	global evtsource
 	global mainUrlList
 	global urlREList
@@ -116,6 +129,11 @@ def load_element():
 	global specificLocation
 	global timezoneName
 
+	global cityCoordinateDict
+	global localityDict
+	global evtsourceCommunityDict
+	global evtsourceYearDict
+
 	evtnamePattern = Config.evtname
 	evtdescPattern = Config.evtdesc
 	starttimePattern = Config.starttime
@@ -125,7 +143,6 @@ def load_element():
 	timePattern = Config.time
 	dateAndTimePattern = Config.dateAndTime
 	locationPattern = Config.location
-	community = Config.community
 	evtsource = Config.source
 	mainUrlList = Config.mainUrlList
 	urlREList = Config.urlREList
@@ -150,6 +167,17 @@ def load_element():
 	if domain == "":
 		domain = re.sub(r'(?<=com|net|edu|org)/[\w\W]*', '', mainUrlList[0])
 
+	for eventCommunity in communities.find():
+		coordinate = eventCommunity["coordinate"]
+		locality = eventCommunity["locality"]
+		cityCoordinateDict[eventCommunity["community"]] = coordinate
+		if locality not in cityCoordinateDict.keys():
+			cityCoordinateDict[locality] = coordinate
+		localityDict[eventCommunity["community"]] = locality
+
+	for evtsourceCommunity in evtSource_Community.find():
+		evtsourceCommunityDict[evtsourceCommunity["evtsource"]] = evtsourceCommunity["community"]
+		evtsourceYearDict[evtsourceCommunity["evtsource"]] = evtsourceCommunity["year"]
 
 def visit_page():
 	global visitList
@@ -158,37 +186,48 @@ def visit_page():
 
 	while len(visitList) != 0:
 		requrl = visitList[0]
-		try:
-			#custom header
-			customHeaders = {
-						'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-						'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-						'Accept-Encoding': 'none',
-						'Accept-Language': 'en-US,en;q=0.8',
-						'Connection': 'keep-alive',
-						'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
-						}
+		print requrl
+		# try:
+		#custom header
+		"""
+		customHeaders = {
+					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+					'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+					'Accept-Encoding': 'none',
+					'Accept-Language': 'en-US,en;q=0.8',
+					'Connection': 'keep-alive',
+					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
+					}
 
-			req = urllib2.Request(requrl, headers = customHeaders)
-			res_data = urllib2.urlopen(req, timeout = 10)
-			encoding = res_data.info().get('Content-Encoding')
-			
-			#handle compressed file
-			if encoding in ('gzip','x-zip','deflate'):
-				res = decode(res_data, encoding)
-			else:
-				res = res_data.read()
+		
+		req = urllib2.Request(requrl, headers = customHeaders)
+		res_data = urllib2.urlopen(req, timeout = 10)
+		"""
+		
+		"""
+		encoding = res_data.info().get('Content-Encoding')
+		
+		#handle compressed file
+		if encoding in ('gzip','x-zip','deflate'):
+			res = decode(res_data, encoding)
+		else:
+			res = res_data.read()
+		
+		"""
+		res_data = requests.get(requrl, verify=False)
+		res = res_data.text
+		
 
-			analyze_page(res, requrl)
+		analyze_page(res, requrl)
 
-			print requrl
+		print requrl
 
-		except Exception as e:
-			print "#######################################"
-			print "Exception handling: " + str(e)
-			print requrl
-			printException()
-			print "#######################################"
+		# except Exception as e:
+		# 	print "#######################################"
+		# 	print "Exception handling: " + str(e)
+		# 	print requrl
+		# 	printException()
+		# 	print "#######################################"
 
 		visitList.remove(requrl)
 		visitedList.append(requrl)
@@ -263,8 +302,8 @@ def fetch_url(HTML):
 		tempUrlList = urlREPattern.findall(HTML)
 		urlList.extend(tempUrlList)
 
-	#print urlList
-	#raw_input("urlList")
+	# print urlList
+	# raw_input("urlList")
 
 	if urlPrefixList != []:
 		isUrlPrefix = True
@@ -297,8 +336,8 @@ def fetch_url(HTML):
 			#print url
 			pass
 
-	#print visitList
-	#raw_input('123')
+	# print visitList
+	# raw_input('123')
 
 def modifyUrl(url):
 	global subUrlList
@@ -327,13 +366,14 @@ def fetch_information(HTML, requrl):
 	global timePattern
 	global locationPattern
 	global dateAndTimePattern
-	global community
 	global evtsource
 	global datePattern
 	global picurlPattern
 	global tagsPattern
 	global additionalTags
 	global specificLocation
+	global evtsourceCommunityDict
+	global evtsourceYearDict
 
 	currentTime =  datetime.datetime.now()
 	currentDate = currentTime.strftime('%Y-%m-%d')
@@ -356,9 +396,9 @@ def fetch_information(HTML, requrl):
 	picurl = ""
 	tags = []
 
-	#raw_input(requrl)
-	#print HTML
-	#raw_input(123)
+	# raw_input(requrl)
+	# print HTML
+	# raw_input(123)
 
 	evtname = tree.xpath(evtnamePattern)
 	evtname = get_text(evtname)
@@ -439,27 +479,48 @@ def fetch_information(HTML, requrl):
 	#decode as unicode and analyze text
 	evtname = analyze_text(unidecode.unidecode(evtname))
 	evtdesc = analyze_text(unidecode.unidecode(evtdesc))
-
 	location = analyze_text(location)
 	dateAndTime = analyze_text(dateAndTime)
 	date = analyze_text(date)
 	time = analyze_text(time)
 	starttime = analyze_text(starttime)
 	endtime = analyze_text(endtime)
-
+	
 	starttime, endtime = analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate)
 
 	if starttime == "":
 		print "Can't crawl time information: ",
 		print requrl
 		return 0
-	fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl)
+
+	community = evtsourceCommunityDict[evtsource]
+	year = evtsourceYearDict[evtsource]
+	fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, year)
 
 def get_picurl(lxmlItems):
 	picurl = ""
 	for lxmlItem in lxmlItems:
-		picurl += lxmlItem.get("src")
+		if lxmlItem.get("src") != None:
+			picurl += lxmlItem.get("src")
 	picurl = re.sub(r"^\W*?(?=[/|\w])", "", picurl)
+	################################################
+	#######  ADD ON Part: Need to be tested ########
+	if picurl == "":
+		picText = ""
+		for lxmlItem in lxmlItems:
+			picText = picText + " " + etree.tostring(lxmlItem)
+
+		urlPicStr = "url\([\w\W]*?\)"
+		urlPicPattern = re.compile(urlPicStr)
+		picurlList = urlPicPattern.findall(picText)
+		if len(picurlList) > 0:
+			picurl = picurlList[0]
+		if picurl != "":
+			picurl = re.sub(r'url\(', '', picurl)
+			picurl = re.sub(r'\)', '', picurl)
+			picurl = picurl.strip()
+
+	#################################################
 	return picurl
 
 def get_text(lxmlItems):
@@ -503,9 +564,9 @@ def format_time(timeString):
 	timeString = timeString.lower()
 	uselessCharList = [
 		"|", "@", ",", "from", 
-		"est", "cst", "mst", "pst", "akst", "hast", "edt", "cdt", "mdt", "pdt", "akdt", "hadt", "et", "ct", "mt", "pt",
+		" est", " cst", " mst", " pst", " akst", " hast", " edt", " cdt", " mdt", " pdt", " akdt", " hadt", " et", " ct", " mt", " pt",
 		"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
-		"mon", "tue", "tues", "wed", "thu", "thur", "thurs", "fri", "sat", "sun",
+		"mon ", "tue ", "tues ", "wed ", "thu ", "thur ", "thurs ", "fri ", "sat ", "sun ", "·"
 		]
 
 	if "time:" or "time" in timeString:
@@ -531,7 +592,7 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 	returnedStarttime = ""
 	returnedEndtime = ""
 
-	splitCharList = ["-", u"–", "until", "—", "to"]
+	splitCharList = [" to ", "until", "-", u"–", "—"]
 	splitCharacter = ""
 
 	dateAndTime = format_time(dateAndTime)
@@ -703,26 +764,21 @@ def modify_location(location):
 
 	for locationModifiedItem in locationModifiedList:
 		location = re.sub(locationModifiedItem, '', location)
+
 	location = re.sub(r'\s+', ' ', location)
 	location = location.encode("ascii","ignore")
 	return location
 
 
-def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl):
+def fetch_data(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, year):
+
 	if not check_url(url):
 		evtname = modify_evtname(evtname)
 		evtdesc = modify_evtdesc(evtdesc)
 		location = modify_location(location)
 		evtname = titlecase(evtname)
-		latitude, longitude, maxdistance = getGeoInfo(location, community)
 
-		#################################
-		# convert time to GMT
-		starttime = convertTimetoGMT(starttime)
-		endtime = convertTimetoGMT(endtime)
-		#################################
-
-		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, latitude, longitude, maxdistance)
+		feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, year)
 	else:
 		print "Exist: ",
 		print url
@@ -734,7 +790,25 @@ def check_url(url):
 		isExist = True
 	return isExist
 
-def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, latitude, longitude, maxdistance):
+def getLowercase(field):
+	if isinstance(field, str):
+		newField = field.lower()
+	elif isinstance(field, unicode):
+		newField = field.encode('ascii', 'ignore').lower()
+	elif isinstance(field, list):
+		newField = []
+		for item in field:
+			item = getLowercase(item)
+			newField.append(item)
+	elif isinstance(field, dict):
+		newField = {}
+		for key, value in field.iteritems():
+			newField[key.lower()] = getLowercase(value)
+	else:
+		newField = field
+	return newField
+
+def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, evtsource, formerDate, tags, additionalTags, picurl, year):
 
 	item = {}
 	item["url"] = HTMLParser.HTMLParser().unescape(url)
@@ -760,45 +834,46 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	item["attendcount"] = 0
 
 	item["attended"] = []
-	item["attendedCount"] = []
+	item["attendedCount"] = 0
 
 	item["admin"] = []
 	item["keywords"] = []
 	item["community"] = community
-	item["other"] = {"tags":tags}
-	item["other"]["tags"].extend(additionalTags)
-	item["other"]["currentDistance"] = ""
-	item["evtsource"] = evtsource
+	item["other"] = {"tags":tags, "year":year}
 	item["just_crawled"] = True
+	item["evtsource"] = evtsource
 	item["isAvailable"] = True
+	# item["other"]["tags"].extend(additionalTags)
+	# item["other"]["currentDistance"] = ""
 	
-	#using geo instead of latitude and longitude
-	#item["latitude"] = latitude
-	#item["longitude"] = longitude
 
-	#geo="70,-30"
-	if latitude != "" and longitude != "":
-		item["geo"] = str(latitude) + "," + str(longitude)
-	else:
-		item["geo"] = ""
+	# item["freqmatchedcr"] = 0
+	# item["freqmatchedcb"] = 0
+	# item["freqmatched"] = 0
 
-	item["maxdistance"] = maxdistance
-	#print item
-	#print item["location"]
-	#raw_input("item")
+	# item["evtnamelowercase"] = getLowercase(item["evtname"])
+	# item["evtdesclowercase"] = getLowercase(item["evtdesc"])
+	# item["keywordslowercase"] = getLowercase(item["keywords"])
+	# item["otherlowercase"] = getLowercase(item["other"])
 	
-	
-	insert_item(item)
+	# #using geo instead of latitude and longitude
+	# #item["latitude"] = latitude
+	# #item["longitude"] = longitude
 
-def feed_url(url):
-	insert_url(url)
-	pass
+	# #geo="70,-30"
+	# if latitude != "" and longitude != "":
+	# 	item["geo"] = str(latitude) + "," + str(longitude)
+	# else:
+	# 	item["geo"] = ""
 
-def insert_url(url):
-	ele = {"url":url}
-	urlFilter.insert(ele)
+	# item["maxdistance"] = maxdistance
+	# print item
+	# print item["location"]
+	# raw_input("item")
+	timeFilter(item)
 
-def insert_item(item):
+
+def timeFilter(item):
 	global crawledItem
 	global stopSign
 	global unqualifiedStarttimeCount
@@ -806,11 +881,12 @@ def insert_item(item):
 	global unqualifiedFlag
 	global timezoneName
 
-	timezoneInstance = timezone(timezoneName)
+	global cityCoordinateDict
+	global localityDict
+
 	currentTime = datetime.datetime.now()
 
 	# add timezone information to current time
-	#currentTime = timezoneInstance.localize(currentTime)
 	endTime = currentTime + datetime.timedelta(weeks=8)
 
 	if item["starttime"] > endTime:
@@ -843,27 +919,23 @@ def insert_item(item):
 	else:
 		unqualifiedFlag = 3
 
-		#print item["evtname"]
-		#print item
 		if selfDefFilter(item):
 			print "Insert!"
 			crawledItem += 1
-			inserted_id = events.insert(item)
-			insertEventForKazem(item, inserted_id)
+			if insertEventData(events, item, cityCoordinateDict, localityDict, timezoneName):
+				feed_url(item["url"])
 		else:
 			print "Filtered by selfDefFilter!! Event doesn't insert into MongoDB"
-		feed_url(item["url"])
+			feed_url(item["url"])
 		#raw_input(item["url"])
 
-def convertTimetoGMT(time):
-	global timezoneName
-	print time
-	timezoneInstance = timezone(timezoneName)
-	locTime = timezoneInstance.localize(time)
-	GMTTimeZoneInstance = timezone("GMT")
-	gmtTime = locTime.astimezone(GMTTimeZoneInstance)
-	print gmtTime
-	return gmtTime
+def feed_url(url):
+	insert_url(url)
+	pass
+
+def insert_url(url):
+	ele = {"url":url}
+	insertFilter(urlFilter, ele)
 
 def printException():
 	exc_type, exc_obj, tb = sys.exc_info()
@@ -873,25 +945,6 @@ def printException():
 	linecache.checkcache(filename)
 	line = linecache.getline(filename, lineno, f.f_globals)
 	print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
-
-def insertEventForKazem(event, inserted_id):
-	try:
-		event["events_id"] = inserted_id
-		event["evtname"] = event["evtname"].lower()
-		event["url"] = event["url"].lower()
-		event["location"] = event["location"].lower()
-		event["evtdesc"] = event["evtdesc"].lower()
-		tagList = []
-		for tag in event["other"]["tags"]:
-			tagList.append(tag.lower())
-		event["other"]["tags"] = tagList
-		eventslowercase.insert(event)
-	except Exception as e:
-		print "############################"
-		print "ERROR:"
-		print e
-		print "############################"
-		eventslowercase.insert(event)
 
 def selfDefFilter(item):
 	return True
