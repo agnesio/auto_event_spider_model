@@ -129,14 +129,6 @@ def load_element():
 	global specificLocation
 	global timezoneName
 
-	global starttimeModifiedList
-	global startdateModifiedList
-	global endtimeModifiedList
-	global enddateModifiedList
-	global dateModifiedList
-	global timeModifiedList
-	global dateAndTimeModifiedList
-
 	global cityCoordinateDict
 	global localityDict
 	global evtsourceCommunityDict
@@ -167,13 +159,6 @@ def load_element():
 	locationModifiedList = Config.locationModifiedList
 	specificLocation = Config.specificLocation
 	timezoneName = Config.timezoneName
-	starttimeModifiedList = Config.starttimeModifiedList
-	startdateModifiedList = Config.startdateModifiedList
-	endtimeModifiedList = Config.endtimeModifiedList
-	enddateModifiedList = Config.enddateModifiedList
-	dateModifiedList = Config.dateModifiedList
-	timeModifiedList = Config.timeModifiedList
-	dateAndTimeModifiedList = Config.dateAndTimeModifiedList
 
 	if evtsource == "":
 		evtsource = re.sub(r'https?:(//)?(www\.)?', '', mainUrlList[0])
@@ -280,8 +265,8 @@ def analyze_page(HTML, requrl):
 	HTML = HTMLParser.HTMLParser().unescape(HTML)
 	soup = BeautifulSoup(HTML)
 	HTML = str(soup.body)
-	#print HTML
-	#raw_input("HTML")
+	# print HTML
+	# raw_input("HTML")
 	if stopSign == False:
 		fetch_url(HTML)
 	
@@ -389,14 +374,6 @@ def fetch_information(HTML, requrl):
 	global evtsourceCommunityDict
 	global evtsourceYearDict
 
-	global starttimeModifiedList
-	global startdateModifiedList
-	global endtimeModifiedList
-	global enddateModifiedList
-	global dateModifiedList
-	global timeModifiedList
-	global dateAndTimeModifiedList
-
 	currentTime =  datetime.datetime.now()
 	currentDate = currentTime.strftime('%Y-%m-%d')
 	currentDate = datetime.datetime.strptime(currentDate, '%Y-%m-%d')
@@ -477,51 +454,24 @@ def fetch_information(HTML, requrl):
 	if dateAndTimePattern != "":
 		dateAndTime = tree.xpath(dateAndTimePattern)
 		dateAndTime = get_text(dateAndTime)
-		if dateAndTimeModifiedList != []:
-			for dateAndTimeModifiedItem in dateAndTimeModifiedList:
-				dateAndTime = re.sub(dateAndTimeModifiedItem, '', dateAndTime)
-
 	if datePattern != "":
 		date = tree.xpath(datePattern)
 		date = get_text(date)
-		if dateModifiedList != []:
-			for dateModifiedItem in dateModifiedList:
-				date = re.sub(dateModifiedItem, '', date)
-
 	if timePattern != "":
 		time = tree.xpath(timePattern)
 		time = get_text(time)
-		if timeModifiedList != []:
-			for timeModifiedItem in timeModifiedList:
-				time = re.sub(timeModifiedItem, '', time)
-
 	if starttimePattern != "":
 		starttime = tree.xpath(starttimePattern)
 		starttime = get_text(starttime)
-		if starttimeModifiedList != []:
-			for starttimeModifiedItem in starttimeModifiedList:
-				starttime = re.sub(starttimeModifiedItem, '', starttime)
-
 	if endtimePattern != "":
 		endtime = tree.xpath(endtimePattern)
 		endtime = get_text(endtime)
-		if endtimeModifiedList != []:
-			for endtimeModifiedItem in endtimeModifiedList:
-				endtime = re.sub(endtimeModifiedItem, '', endtime)
-
 	if startdatePattern != "":
 		startdate = tree.xpath(startdatePattern)
 		startdate = get_text(startdate)
-		if startdateModifiedList != []:
-			for startdateModifiedItem in startdateModifiedList:
-				startdate = re.sub(startdateModifiedItem, '', startdate)
-	
 	if enddatePattern != "":
 		enddate = tree.xpath(enddatePattern)
 		enddate = get_text(enddate)
-		if enddateModifiedList != []:
-			for enddateModifiedItem in enddateModifiedList:
-				enddate = re.sub(enddateModifiedItem, '', enddate)
 
 	url = requrl
 
@@ -667,10 +617,8 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 						break
 
 				if splitCharacter != "":
-					# rawStarttime = dateAndTime.split(splitCharacter)[0]
-					# rawEndtime = dateAndTime.split(splitCharacter)[1]
-
-					rawStarttime, rawEndtime = splittime(dateAndTime, splitCharacter)
+					rawStarttime = dateAndTime.split(splitCharacter)[0]
+					rawEndtime = dateAndTime.split(splitCharacter)[1]
 
 					rawStarttime = rawStarttime.encode("ascii","ignore")
 					rawEndtime = rawEndtime.encode("ascii","ignore")
@@ -719,11 +667,8 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 								splitCharacter = splitChar
 								break
 						if splitCharacter != "":
-
-							# rawStarttime = time.split(splitCharacter)[0]
-							# rawEndtime = time.split(splitCharacter)[1]
-
-							rawStarttime, rawEndtime = splittime(time, splitCharacter)
+							rawStarttime = time.split(splitCharacter)[0]
+							rawEndtime = time.split(splitCharacter)[1]
 
 							rawStarttime = rawStarttime.encode("ascii","ignore")
 							rawEndtime = rawEndtime.encode("ascii","ignore")
@@ -764,18 +709,6 @@ def analyze_time(dateAndTime, date, time, starttime, endtime, startdate, enddate
 		printException()
 
 	return returnedStarttime, returnedEndtime
-
-def splittime(timeString, splitCharacter):
-	tempStarttime = timeString.split(splitCharacter)[0]
-	tempEndtime = timeString.split(splitCharacter)[1]
-	if "am" in tempEndtime:
-		if "am" not in tempStarttime and "pm" not in tempStarttime:
-			tempStarttime += "am"
-	elif "pm" in tempEndtime:
-		if "am" not in tempStarttime and "pm" not in tempStarttime:
-			tempStarttime += "pm"
-	return tempStarttime, tempEndtime
-
 
 # use two ways to parse time string: dparser and parsedatetime
 def parsetime(timeString):

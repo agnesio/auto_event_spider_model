@@ -843,7 +843,7 @@ def feed_item(url, evtname, evtdesc, starttime, endtime, location, community, ev
 	item["just_crawled"] = True
 	item["evtsource"] = evtsource
 	item["isAvailable"] = True
-	# item["other"]["tags"].extend(additionalTags)
+	item["other"]["tags"].extend(additionalTags)
 	# item["other"]["currentDistance"] = ""
 	
 
